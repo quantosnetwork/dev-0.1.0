@@ -10,12 +10,6 @@ import (
 const MaxTxPerBlock = 100
 const MaxContractPerBlock = 30
 
-var m Manager
-
-func NewBlockchain() Manager {
-	return m
-}
-
 type Manager interface {
 	CreateNewBlock(chainID string, creator string, block *BlockV1) (Block, error)
 	CreateGenesis() error
@@ -33,7 +27,7 @@ type Manager interface {
 	ValidateBlockchain(chainID string) bool
 	GetCoinbase(currencyID uint)
 	Accounts() // returns account manager
-	Blocks() []Block
+	Blocks() *VBlock
 	Consensus()       // returns consensus manager
 	States()          // returns states manager
 	Tx() tx.TxManager // returns tx manager
@@ -71,8 +65,8 @@ func (b blockchainManager) GetReceipts() []interface{} {
 }
 
 func (b blockchainManager) GetAllBlocks() []Block {
-	//TODO implement me
-	panic("implement me")
+	bs := make([]Block, 1)
+	return bs
 }
 
 func (b blockchainManager) GetBlockFromHeight(height uint64) {
@@ -131,8 +125,8 @@ func (b blockchainManager) Accounts() {
 }
 
 // Blocks blockchainManager.Blocks is an alias to blockchainManager.GetAllBlocks will return all Block interfaces
-func (b blockchainManager) Blocks() []Block {
-	return b.GetAllBlocks()
+func (b blockchainManager) Blocks() *VBlock {
+	return GetBlockProxy()
 }
 
 func (b blockchainManager) Consensus() {

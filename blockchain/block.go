@@ -1,8 +1,10 @@
 package blockchain
 
 import (
+	"encoding/json"
 	"github.com/barkimedes/go-deepcopy"
 	"go.uber.org/atomic"
+	"io/ioutil"
 	"quantos/0.1.0/hash"
 	"quantos/0.1.0/tx"
 )
@@ -33,11 +35,11 @@ type BlockHeader struct {
 	Height            uint64
 	ChainID           string
 	Version           int32
-	Hash              *hash.Hash
-	ParentHash        *hash.Hash
-	MerkleRoot        *hash.Hash
-	TxMerkleRoot      *hash.Hash
-	ReceiptMerkleRoot *hash.Hash
+	Hash              []byte
+	ParentHash        []byte
+	MerkleRoot        []byte
+	TxMerkleRoot      []byte
+	ReceiptMerkleRoot []byte
 	Timestamp         int64
 	Number            int
 	Size              int
@@ -70,7 +72,7 @@ func (b BlockV1) Index() uint64 {
 	return b.Head.Index
 }
 
-func (b BlockV1) ParentHash() *hash.Hash {
+func (b BlockV1) ParentHash() []byte {
 	return b.Head.ReceiptMerkleRoot
 }
 
@@ -78,7 +80,7 @@ func (b BlockV1) Version() int32 {
 	return b.Head.Version
 }
 
-func (b BlockV1) Hash() *hash.Hash {
+func (b BlockV1) Hash() []byte {
 	return b.Head.Hash
 }
 
@@ -113,8 +115,8 @@ func (b BlockV1) Size() int {
 }
 
 func (b BlockV1) GetRaw() []byte {
-	//TODO implement me
-	panic("implement me")
+	r, _ := json.Marshal(b)
+	return r
 }
 
 func (b BlockV1) Header() *BlockHeader {
@@ -135,12 +137,29 @@ type VBlock struct {
 	BlockImage  *BlockV1
 }
 
-func (vb *VBlock) NewBlock() Block {
-	b := &BlockV1{}
-	bh := &BlockHeader{}
+func (vb *VBlock) NewBlock() *BlockV1 {
+	b := new(BlockV1)
+	bh := new(BlockHeader)
 	b.Head = bh
 	vb.blockObject = b
+	bm := NewBlockchainManager()
+	b._calculateMerkleTree(bm)
 	return b
+}
+
+func (b *BlockV1) _calculateMerkleTree(chain Manager) {
+
+	tc := make([]TreeContent, 2)
+	buf := make([][]byte, 1)
+	for i := 0; i <= len(tc)-1; i++ {
+		buf[0] = b.Head.Hash
+		tc[i] = buf[:]
+
+	}
+	t := NewTree(tc)
+
+	b.Head.MerkleRoot = t.MerkleRoot[:]
+
 }
 
 // duplicates the original block (perfectly deepcopy) so we ca work on the copy and revert in case of an error
@@ -156,6 +175,21 @@ func (vb *VBlock) duplicateOriginalObject() {
 }
 
 // GetBlockProxy will get the block interface to perform actions on the real block
-func GetBlockProxy(blockIndex int64) {
+func GetBlockProxy() *VBlock {
+	return &VBlock{}
+}
 
+func GetBlockModifierProxy(blockID string) *VBlock {
+	return &VBlock{}
+}
+
+func (vb *VBlock) WriteAsJson(content *BlockV1) {
+	/*var path string
+	if vb.blockObject.Head.Index == 0 {
+		path = "./genesis.json"
+	} else {
+		path = fmt.Sprintf("./data/block%d.json", vb.blockObject.Head.Index)
+	}*/
+	toWrite, _ := json.Marshal(content)
+	ioutil.WriteFile("./genesis.json", toWrite, 0600)
 }

@@ -9,7 +9,7 @@ var edSuite = edwards25519.NewBlakeSHA256Ed25519()
 var HashFn = edSuite.Hash()
 
 type Hash struct {
-	hash [32]byte
+	Hash [32]byte
 }
 
 func NewHash(b []byte) *Hash {
@@ -18,14 +18,14 @@ func NewHash(b []byte) *Hash {
 	HashFn.Write(b)
 	s := HashFn.Sum(nil)
 	h := &Hash{}
-	copy(h.hash[:], s[:])
+	copy(h.Hash[:], s[:])
 	return h
 }
 
 func (h *Hash) Bytes() []byte {
-	return h.hash[:]
+	return h.Hash[:]
 }
 
 func (h *Hash) String() string {
-	return hex.EncodeToString(h.hash[:])
+	return hex.EncodeToString(h.Hash[:])
 }

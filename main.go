@@ -1,13 +1,23 @@
+/*
+Copyright © 2022 THE QUANTOS DEVELOPERS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 package main
 
-import (
-	"context"
-	"github.com/davecgh/go-spew/spew"
-	"quantos/0.1.0/config"
-)
+import "quantos/0.1.0/cmd"
 
 func main() {
-	c := config.NewNodeContext(context.Background())
-	spew.Dump(c.Value("nctx"))
-	spew.Dump(c.Value("node_id"))
+	cmd.Execute()
 }
