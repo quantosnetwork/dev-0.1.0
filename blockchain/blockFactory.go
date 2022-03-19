@@ -2,7 +2,7 @@ package blockchain
 
 import (
 	"encoding/json"
-	"quantos/0.1.0/factory"
+	"github.com/quantosnetwork/v0.1.0-dev/factory"
 )
 
 type BlockFactory interface {

@@ -2,11 +2,11 @@ package blockchain
 
 import (
 	"encoding/json"
-	"github.com/barkimedes/go-deepcopy"
+	"github.com/barkimedes/go-deepcopy" //nolint:typecheck
+	"github.com/quantosnetwork/v0.1.0-dev/hash"
+	"github.com/quantosnetwork/v0.1.0-dev/tx" //nolint:typecheck
 	"go.uber.org/atomic"
 	"io/ioutil"
-	"quantos/0.1.0/hash"
-	"quantos/0.1.0/tx"
 )
 
 type Block interface {

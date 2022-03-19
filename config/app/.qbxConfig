@@ -1,0 +1,31 @@
+app:
+  name: Quantos
+  version: 0.1.0
+  devmode: true
+  paths:
+    data:
+      root: ./data/
+      chain:
+        live: ./data/livenet/
+        dev: ./data/testnet/
+        local: ./data/local/
+      queue:
+        blocks: ./data/bq/
+        tx: ./data/tx/
+        contracts: ./data/contract
+    genesis_file:
+      live: ./genesis.json
+      dev: ./genesis-dev.json
+      local: ./genesis-local.json
+    cache:
+      live: ./cache/live/
+      dev: ./cache/dev/
+      local: ./cache/local
+    bootstrap_p2p:
+      live: ./bootstrap.json
+      dev: ./bootstrap-dev.json
+      local: ./bootstrap-local.json
+    tmp: ./tmp/
+    validators:
+      file: ./config/app/validators.json
+

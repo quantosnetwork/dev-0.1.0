@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/looplab/fsm"
-	"quantos/0.1.0/version"
+	"github.com/quantosnetwork/v0.1.0-dev/version"
 )
 
 type ChainConfig struct {

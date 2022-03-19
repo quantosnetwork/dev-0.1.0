@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 THE QUANTOS DEVELOPERS
+Copyright © 2022 Quantos Developers <dev@quantos.network>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 package main
 
-import "quantos/0.1.0/cmd"
+import "github.com/quantosnetwork/v0.1.0-dev/cmd"
 
 func main() {
 	cmd.Execute()

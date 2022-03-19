@@ -3,8 +3,8 @@ package blockchain
 import (
 	"github.com/hashicorp/golang-lru"
 	"github.com/looplab/fsm"
-	"quantos/0.1.0/config"
-	"quantos/0.1.0/tx"
+	"github.com/quantosnetwork/v0.1.0-dev/config"
+	"github.com/quantosnetwork/v0.1.0-dev/tx"
 )
 
 const MaxTxPerBlock = 100
