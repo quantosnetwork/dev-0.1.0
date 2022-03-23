@@ -8,8 +8,8 @@
   "Coin": {
     "name": "QBit",
     "symbol": "QBX",
-    "maxAvailable": "100000000",
-    "genesisReward": "100000",
+    "maxAvailable": "1000000000",
+    "genesisReward": "50000000",
     "blockReward": "1000",
     "minUnit": "0.000000000000000001",
     "maxUnit": "10",

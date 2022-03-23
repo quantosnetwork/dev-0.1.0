@@ -10,12 +10,12 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-hclog"
+	"github.com/quantosnetwork/v0.1.0-dev/keys"
+	"github.com/quantosnetwork/v0.1.0-dev/serializer"
+	"github.com/quantosnetwork/v0.1.0-dev/uptime"
+	"github.com/quantosnetwork/v0.1.0-dev/version"
 	"go.uber.org/atomic"
 	"io/ioutil"
-	"quantos/0.1.0/keys"
-	"quantos/0.1.0/serializer"
-	"quantos/0.1.0/uptime"
-	"quantos/0.1.0/version"
 	"time"
 )
 
