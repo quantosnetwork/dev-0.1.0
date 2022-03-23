@@ -11,6 +11,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.2
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/looplab/fsm v0.3.0
+	github.com/mr-tron/base58 v1.2.0
 	github.com/sony/gobreaker v0.5.0
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.4.0
@@ -20,6 +21,7 @@ require (
 	go.uber.org/atomic v1.9.0
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
 	lukechampine.com/blake3 v1.1.7
+	lukechampine.com/frand v1.4.2
 )
 
 require (
@@ -36,7 +38,6 @@ require (
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
-	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -48,5 +49,4 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	lukechampine.com/frand v1.4.2 // indirect
 )

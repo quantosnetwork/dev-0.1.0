@@ -1,5 +1,5 @@
 package sdk
 
-func sdk() {
+func init() {
 	InitializeSDK()
 }
