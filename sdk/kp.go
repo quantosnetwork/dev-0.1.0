@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -11,6 +12,8 @@ import (
 	"github.com/quantosnetwork/v0.1.0-dev/common"
 	"golang.org/x/crypto/scrypt"
 	"lukechampine.com/frand"
+	"os"
+	"time"
 )
 
 type KeyPairInfo struct {
@@ -162,4 +165,97 @@ func (a *AccountInfo) Encrypt(password []byte) error {
 		}
 	}
 	return nil
+}
+
+func (a *AccountInfo) SaveTo(fileName string) error {
+	data, err := json.MarshalIndent(a, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("saving keyfile of account %v to %v\n", a.Name, fileName)
+	err = os.WriteFile(fileName, data, 0400)
+	return err
+}
+
+func LoadAccountFrom(fileName string) (*AccountInfo, error) {
+	data, err := os.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+	a := NewAccountInfo()
+	err = json.Unmarshal(data, a)
+	if err != nil {
+		return nil, fmt.Errorf("key store should be a json file, %v", err)
+	}
+	return a, nil
+}
+
+type FileAccountStore struct {
+	AccountDir string
+}
+
+func NewFileAccountStore(accountDir string) *FileAccountStore {
+	return &FileAccountStore{accountDir}
+}
+
+func (s *FileAccountStore) LoadAccount(name string) (*AccountInfo, error) {
+	fileName := s.AccountDir + "/" + name + ".json"
+	_, err := os.Stat(fileName)
+	if err != nil {
+		return nil, fmt.Errorf("account is not imported at %s: %v. use 'iwallet account import %s <private-key>' to import it", fileName, err, name)
+	}
+	return LoadAccountFrom(fileName)
+}
+
+func (s *FileAccountStore) SaveAccount(a *AccountInfo) error {
+	dir := s.AccountDir
+	err := os.MkdirAll(s.AccountDir, 0700)
+	if err != nil {
+		return err
+	}
+	fileName := dir + "/" + a.Name + ".json"
+	// back up old keystore file if needed
+	if _, err := os.Stat(fileName); !os.IsNotExist(err) {
+		timeStr := time.Now().Format(time.RFC3339)
+		backupDir := dir + "/backup"
+		err = os.MkdirAll(backupDir, 0700)
+		if err != nil {
+			return err
+		}
+		backupFileName := backupDir + "/" + a.Name + "." + timeStr + ".json"
+		fmt.Printf("backing up %v to %v\n", fileName, backupFileName)
+		err = os.Rename(fileName, backupFileName)
+		if err != nil {
+			return err
+		}
+	}
+	return a.SaveTo(fileName)
+}
+
+func (s *FileAccountStore) DeleteAccount(name string) error {
+	f := s.AccountDir + "/" + name + ".json"
+	err := os.Remove(f)
+	if err != nil {
+		return err
+	}
+	fmt.Println("File", f, "has been removed.")
+	return nil
+}
+
+func (s *FileAccountStore) ListAccounts() ([]*AccountInfo, error) {
+	files, err := os.ReadDir(s.AccountDir)
+	if err != nil {
+		return nil, err
+	}
+	accs := make([]*AccountInfo, 0)
+	for _, f := range files {
+		fileName := s.AccountDir + "/" + f.Name()
+		acc, err := LoadAccountFrom(fileName)
+		if err != nil {
+			fmt.Println("loading account failed", fileName, err)
+			continue
+		}
+		accs = append(accs, acc)
+	}
+	return accs, nil
 }
