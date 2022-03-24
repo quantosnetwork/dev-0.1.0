@@ -11,10 +11,7 @@
     "maxAvailable": "1000000000",
     "genesisReward": "50000000",
     "blockReward": "1000",
-    "minUnit": "0.000000000000000001",
-    "maxUnit": "10",
-    "minUnitName": "QBitly",
-    "maxUnitName": "DQBit",
+    "decimals": 16,
     "coinbaseAddress": "000000004c0ac56e015b9bd5912508e1c4a992"
   },
   "Validators": [

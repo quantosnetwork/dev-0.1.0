@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"github.com/barkimedes/go-deepcopy" //nolint:typecheck
 	"github.com/quantosnetwork/v0.1.0-dev/hash"
+	"github.com/quantosnetwork/v0.1.0-dev/trie"
 	"github.com/quantosnetwork/v0.1.0-dev/tx" //nolint:typecheck
 	"go.uber.org/atomic"
 	"io/ioutil"
+	"strconv"
 )
 
 type Block interface {
@@ -149,16 +151,25 @@ func (vb *VBlock) NewBlock() *BlockV1 {
 
 func (b *BlockV1) _calculateMerkleTree(chain Manager) {
 
-	tc := make([]TreeContent, 2)
-	buf := make([][]byte, 1)
-	for i := 0; i <= len(tc)-1; i++ {
-		buf[0] = b.Head.Hash
-		tc[i] = buf[:]
-
+	merkleTxData := b.Transactions
+	merkleRootData := chain.GetAllBlocks()
+	blockmerkledata := make([][]byte, len(merkleRootData))
+	txmerkledata := make([][]byte, len(merkleTxData()))
+	for i, b := range merkleRootData {
+		blockmerkledata[i] = b.Hash().Bytes()
 	}
-	t := NewTree(tc)
 
-	b.Head.MerkleRoot = t.MerkleRoot[:]
+	for txi, btx := range merkleTxData() {
+		id, _ := strconv.Atoi(txi)
+		txmerkledata[id], _ = json.Marshal(btx)
+	}
+
+	mt := trie.NewMerkleTree(b.Head.ChainID, string(b.Head.Version), txmerkledata...)
+	txRoot := mt.Tree.Root()
+	mtb := trie.NewMerkleTree(b.Head.ChainID, string(b.Head.Version), blockmerkledata...)
+
+	b.Head.MerkleRoot = mtb.Tree.Root()
+	b.Head.TxMerkleRoot = txRoot
 
 }
 
