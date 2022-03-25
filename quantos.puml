@@ -1,0 +1,1128 @@
+@startuml
+namespace account {
+    class Account << (S,Aquamarine) >> {
+        + ID string
+        + Nickname string
+        + Groups <font color=blue>map</font>[string]*Group
+        + ACL <font color=blue>map</font>[string]*Permission
+
+        + New(args <font color=blue>map</font>[string]any) *Account
+        + NewFromKeys(id string, ownerKey string, activeKey string) *Account
+        + GetAddress() string
+        + VerifyAddress(addr string) error
+        + Dump() 
+        + String() string
+        + Bytes() []byte
+
+    }
+    class Group << (S,Aquamarine) >> {
+        + Name string
+        + Items []*GroupItem
+
+    }
+    class GroupItem << (S,Aquamarine) >> {
+        + ID string
+        + Permission string
+        + IsKeyPair bool
+        + Weight int
+
+    }
+    interface IAccount  {
+        + New(args <font color=blue>map</font>[string]any) *Account
+        + NewFromKeys(id string, ownerKey string, activeKey string) *Account
+
+    }
+    class Keys << (S,Aquamarine) >> {
+        - r group.Group
+        - shared <font color=blue>map</font>[x25519.Key]x25519.Key
+        - dhPub x25519.Key
+        - dhPriv x25519.Key
+        - privKey []byte
+
+        + PublicKey []byte
+        + Sig []byte
+
+        - signPublic(priv ed25519.PrivateKey) []byte
+
+        + Shared(with x25519.Key) 
+        + GetLoadedKeys(accID string) *LoadedKeys
+
+    }
+    class LoadedKeys << (S,Aquamarine) >> {
+        + Priv ed25519.PrivateKey
+        + Pub ed25519.PublicKey
+        + PubKeySign []byte
+
+    }
+    class Permission << (S,Aquamarine) >> {
+        + Name string
+        + Groups []string
+        + Items []*GroupItem
+        + Threshold int
+
+    }
+}
+
+"account.IAccount" <|-- "account.Account"
+
+namespace blockchain {
+    interface Block  {
+        + Type() uint64
+        + Height() uint64
+        + Index() uint64
+        + ParentHash() *hash.Hash
+        + Version() int32
+        + Hash() *hash.Hash
+        + Payload() <font color=blue>map</font>[string][]byte
+        + BlockTime() int64
+        + Transactions() <font color=blue>map</font>[string]tx.Transaction
+        + HasTX(txId string) bool
+        + Number() int
+        + Finalized() bool
+        + Size() int
+        + GetRaw() []byte
+        + Header() *BlockHeader
+        + ChainID() string
+        + Proxy() *VBlock
+
+    }
+    interface BlockFactory  {
+        + CreateEmpty() <font color=blue>interface</font>{}
+        + CreateGenesis() *BlockV1
+        + Set(key string, value <font color=blue>interface</font>{}) 
+        + Validate() bool
+        + Build() *Block
+
+    }
+    interface BlockHandler  {
+        + Modify( *BlockV1,  *VBlock) 
+        + Parse( *BlockV1,  *VBlock) 
+        + Verify( *BlockV1,  *VBlock) 
+        + Apply(original *BlockV1, blockEdits *BlockV1) 
+
+    }
+    class BlockHandlerFunc << (S,Aquamarine) >> {
+        + Parse(original *BlockV1, proxy *VBlock) 
+        + Modify(original *BlockV1, proxy *VBlock) 
+        + Verify(original *BlockV1, proxy *VBlock) 
+        + Apply(original *BlockV1, blockEdits *BlockV1) 
+
+    }
+    class BlockHeader << (S,Aquamarine) >> {
+        + BlockType uint64
+        + Index uint64
+        + Height uint64
+        + ChainID string
+        + Version int32
+        + Hash []byte
+        + ParentHash []byte
+        + MerkleRoot []byte
+        + TxMerkleRoot []byte
+        + ReceiptMerkleRoot []byte
+        + Timestamp int64
+        + Number int
+        + Size int
+        + NumTx int
+        + TxIds <font color=blue>map</font>[string]bool
+        + CreationTx string
+        + BlockState uint32
+
+    }
+    class BlockV1 << (S,Aquamarine) >> {
+        - payload <font color=blue>map</font>[string][]byte
+        - isFull atomic.Bool
+
+        + Head *BlockHeader
+        + OpenedTxSlots []<font color=blue>map</font>[string]*tx.Transaction
+        + Signatures <font color=blue>map</font>[string][]byte
+        + ContractsSlots []<font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        + Nonce int
+        + Validators <font color=blue>map</font>[string]bool
+
+        + Type() uint64
+        + Height() uint64
+        + Index() uint64
+        + ParentHash() []byte
+        + Version() int32
+        + Hash() []byte
+        + Payload() <font color=blue>map</font>[string][]byte
+        + BlockTime() int64
+        + Transactions() <font color=blue>map</font>[string]tx.Transaction
+        + HasTX(txId string) bool
+        + Number() int
+        + Finalized() bool
+        + Size() int
+        + GetRaw() []byte
+        + Header() *BlockHeader
+        + ChainID() string
+        + Proxy() *VBlock
+        + _calculateMerkleTree(chain Manager) 
+
+    }
+    class Blockchain << (S,Aquamarine) >> {
+        - blocks <font color=blue>map</font>[string]*Block
+        - blockHeaders <font color=blue>map</font>[string]*BlockHeader
+        - storage store.Store
+        - ctx context.Context
+        - manager blockchainManager
+
+        + ID string
+        + NetworkID uint32
+        + SemVer version.SemVer
+        + GenesisBlock []byte
+
+        + GenerateID() 
+        + SetVersion() 
+        + CreateOrLoadGenesis() 
+
+    }
+    class EmptyLeaf << (S,Aquamarine) >> {
+        - hash() Hash
+
+    }
+    class Hash << (S,Aquamarine) >> {
+        + String() string
+
+    }
+    interface Hashable  {
+        - hash() Hash
+
+    }
+    interface Manager  {
+        + CreateNewBlock(chainID string, creator string, block *BlockV1) (Block, error)
+        + CreateGenesis() error
+        + GetBlockHeaders() []*BlockHeader
+        + GetReceipts() []<font color=blue>interface</font>{}
+        + GetAllBlocks() []Block
+        + GetBlockFromHeight(height uint64) 
+        + GetGenesisBlock() Block
+        + GetBlockByHeight(height uint64) (Block, error)
+        + GetBlockByIndex(index uint64) (Block, error)
+        + GetBlockByTxID(txID string) (Block, error)
+        + GetCurrentState() 
+        + GetLastBlock() Block
+        + SignBlock(block *BlockV1) 
+        + ValidateBlockchain(chainID string) bool
+        + GetCoinbase(currencyID uint) 
+        + Accounts() 
+        + Blocks() *VBlock
+        + Consensus() 
+        + States() 
+        + Tx() tx.TxManager
+        + Bank() 
+        + BlockQueue() 
+        + TxQueue() 
+        + Config() *config.ChainConfig
+        + FSM() *fsm.FSM
+        + Cache() *lru.ARCCache
+        + Stats() 
+        + Bridger() 
+        + Indexer() 
+
+    }
+    interface MerkleTrie  {
+        + Get(key []byte) ([]byte, bool)
+        + Put(key []byte, value []byte) 
+        + Del(key []byte, value []byte) bool
+
+    }
+    class Tree << (S,Aquamarine) >> {
+        + MerkleRoot []byte
+        + TrunkRoots [][]byte
+        + TreeHash []byte
+        + Branches <font color=blue>map</font>[int]*branch
+
+        - newBuilder(contents []TreeContent) *treeBuilder
+        - hash() Hash
+        - hashMerkleRoot(hashes []<font color=blue>map</font>[int][]string) []byte
+
+        + Build(contents []Hashable) 
+        + Put(key []byte, value []byte) 
+        + Get(key []byte) ([]byte, bool)
+        + Del(key []byte, value []byte) bool
+        + Print() 
+        + Walk() []<font color=blue>map</font>[int][]string
+
+    }
+    class TreeContent << (S,Aquamarine) >> {
+        - hash() Hash
+
+        + Bytes() []byte
+
+    }
+    class TreeLeaf << (S,Aquamarine) >> {
+        - parentBranch *branch
+        - content TreeContent
+        - context string
+
+        - hash() Hash
+
+    }
+    class VBlock << (S,Aquamarine) >> {
+        - blockObject *BlockV1
+
+        + BlockImage *BlockV1
+
+        - duplicateOriginalObject() 
+
+        + NewBlock() *BlockV1
+        + WriteAsJson(content *BlockV1) 
+
+    }
+    class blockFactory << (S,Aquamarine) >> {
+        - block *BlockV1
+        - bmap <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+
+        + CreateGenesis() *BlockV1
+        + CreateEmpty() <font color=blue>interface</font>{}
+        + Set(key string, value <font color=blue>interface</font>{}) 
+        + Validate() bool
+        + Build() *Block
+
+    }
+    class blockchain.BlockHandlerFunc << (T, #FF7700) >>  {
+    }
+    class blockchain.Hash << (T, #FF7700) >>  {
+    }
+    class blockchain.TreeContent << (T, #FF7700) >>  {
+    }
+    class blockchain.TreeStates << (T, #FF7700) >>  {
+    }
+    class blockchain.treeWalkFunction << (T, #FF7700) >>  {
+    }
+    class blockchainManager << (S,Aquamarine) >> {
+        + CreateNewBlock(chainID string, creator string, block *BlockV1) (Block, error)
+        + CreateGenesis() error
+        + GetBlockHeaders() []*BlockHeader
+        + GetReceipts() []<font color=blue>interface</font>{}
+        + GetAllBlocks() []Block
+        + GetBlockFromHeight(height uint64) 
+        + GetGenesisBlock() Block
+        + GetBlockByHeight(height uint64) (Block, error)
+        + GetBlockByIndex(index uint64) (Block, error)
+        + GetBlockByTxID(txID string) (Block, error)
+        + GetCurrentState() 
+        + GetLastBlock() Block
+        + SignBlock(block *BlockV1) 
+        + ValidateBlockchain(chainID string) bool
+        + GetCoinbase(currencyID uint) 
+        + Accounts() 
+        + Blocks() *VBlock
+        + Consensus() 
+        + States() 
+        + Tx() tx.TxManager
+        + Bank() 
+        + BlockQueue() 
+        + TxQueue() 
+        + Config() *config.ChainConfig
+        + FSM() *fsm.FSM
+        + Cache() *lru.ARCCache
+        + Stats() 
+        + Bridger() 
+        + Indexer() 
+
+    }
+    class branch << (S,Aquamarine) >> {
+        - hasChildren bool
+        - hasParent bool
+        - multipleBranches []*branch
+        - childCount atomic.Bool
+        - leftLeaf *TreeLeaf
+        - rightLeaf *TreeLeaf
+        - byteLen int
+
+        - hash() Hash
+
+    }
+    class treeBuilder << (S,Aquamarine) >> {
+        - treeContents []TreeContent
+        - size int
+        - height int
+        - leavesTotal int
+        - state TreeStates
+
+        + _prepare(m *Tree) 
+        + _addSingleBranch(m *Tree) 
+        + _addLeaves(m *Tree, height int, left Hashable, right Hashable) 
+
+    }
+}
+"blockchain.Hashable" *-- "blockchain.Tree"
+"blockchain.Hashable" *-- "blockchain.TreeLeaf"
+"blockchain.Hashable" *-- "blockchain.branch"
+
+"blockchain.BlockHandler" <|-- "blockchain.BlockHandlerFunc"
+"blockchain.Hashable" <|-- "blockchain.EmptyLeaf"
+"blockchain.Hashable" <|-- "blockchain.Tree"
+"blockchain.MerkleTrie" <|-- "blockchain.Tree"
+"blockchain.Hashable" <|-- "blockchain.TreeContent"
+"blockchain.Hashable" <|-- "blockchain.TreeLeaf"
+"blockchain.BlockFactory" <|-- "blockchain.blockFactory"
+"blockchain.Manager" <|-- "blockchain.blockchainManager"
+"blockchain.Hashable" <|-- "blockchain.branch"
+
+namespace circuit {
+    class ClientCircuitBreakerProxy << (S,Aquamarine) >> {
+        - client NotificationClient
+        - logger *log.Logger
+        - gb *gobreaker.CircuitBreaker
+
+        + Send() error
+
+    }
+    interface NotificationClient  {
+        + Send() error
+
+    }
+}
+
+"circuit.NotificationClient" <|-- "circuit.ClientCircuitBreakerProxy"
+
+namespace config {
+    class ChainConfig << (S,Aquamarine) >> {
+        + ID int64
+        + Version version.Version
+        + VersionHash []byte
+        + Genesis []byte
+        + FSM *fsm.FSM
+
+    }
+    class ID << (S,Aquamarine) >> {
+        - r []byte
+        - s []byte
+        - d string
+        - g []byte
+
+        + String() string
+
+    }
+    class NodeConfig << (S,Aquamarine) >> {
+        - seed []byte
+
+        + ID *ID
+        + Version version.Version
+        + ListenAddress string
+        + Logger hclog.Logger
+        + Serializer *serializer.SerializableItem
+        + Worker <font color=blue>interface</font>{}
+        + NodeState atomic.Int64
+        + Uptime uptime.UptimeManager
+        + Keys keys.P2PKeys
+        + QuitCh <font color=blue>chan</font> <font color=blue>struct</font>{}
+
+        + NewID() *ID
+        + ValidateID(id *ID) error
+
+    }
+    class NodeContext << (S,Aquamarine) >> {
+        + ParentCtx context.Context
+        + Config *NodeConfig
+        + SessionID uuid.UUID
+
+    }
+    class OnDiskConfig << (S,Aquamarine) >> {
+        + NodeID <font color=blue>struct</font>{[]byte}
+        + Version string
+        + State int64
+        + SessionID string
+        + Keys <font color=blue>struct</font>{string, string}
+        + SavedOn int64
+
+    }
+}
+
+
+namespace factory {
+    interface Factory  {
+        + ConvertTypeToMap(dataType <font color=blue>interface</font>{}) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        + BuildFromBytes(data []byte, dataType <font color=blue>interface</font>{}) (<font color=blue>interface</font>{}, error)
+        + CreateEmpty(dataType <font color=blue>interface</font>{}) <font color=blue>interface</font>{}
+
+    }
+    class factory << (S,Aquamarine) >> {
+        + ConvertTypeToMap(dataType <font color=blue>interface</font>{}) <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        + BuildFromBytes(data []byte, dataType <font color=blue>interface</font>{}) (<font color=blue>interface</font>{}, error)
+        + CreateEmpty(dataType <font color=blue>interface</font>{}) <font color=blue>interface</font>{}
+
+    }
+}
+
+"factory.Factory" <|-- "factory.factory"
+
+namespace fs {
+    class FileEncryptor << (S,Aquamarine) >> {
+        - buf bytes.Buffer
+        - priv *rsa.PrivateKey
+        - pub rsa.PublicKey
+
+        + NewFileKeys() 
+        + Encrypt(data []byte) ([]byte, error)
+        + Decrypt() ([]byte, error)
+
+    }
+    class FileManager << (S,Aquamarine) >> {
+        - work *QFile
+
+        + New(file afero.File, hasflags bool, params <font color=blue>map</font>[string]<font color=blue>interface</font>{}) *QFile
+
+    }
+    class QFile << (S,Aquamarine) >> {
+        - f afero.File
+        - flags []uint32
+        - txId string
+        - signature string
+        - lockState bool
+        - blockHeight uint32
+
+    }
+    class fs.FileFlags << (T, #FF7700) >>  {
+    }
+    interface iFs  {
+        + InitMemFs() 
+        + InitOSFs() 
+        + GetMemFs() *afero.Fs
+        + GetOsFs() *afero.Fs
+        + GetQfs() *qFs
+
+    }
+    class qFs << (S,Aquamarine) >> {
+        - mem afero.Fs
+        - os afero.Fs
+
+        + WriteFileWithFlags(file *QFile) error
+        + InitMemFs() 
+        + InitOsFs() 
+        + GetMemFs() afero.Fs
+        + GetOsFs() afero.Fs
+        + GetQfs() *qFs
+
+    }
+}
+"afero.Afero" *-- "fs.qFs"
+
+
+namespace hash {
+    class Hash << (S,Aquamarine) >> {
+        + Hash []byte
+
+        + Bytes() []byte
+        + String() string
+
+    }
+}
+
+
+namespace keys {
+    interface EncryptionKey  {
+        + Encrypt(msg <font color=blue>interface</font>{}) 
+        + Decrypt(msg <font color=blue>interface</font>{}) 
+
+    }
+    interface Key  {
+        + String() string
+        + Bytes() ([]byte, error)
+        + Hex() string
+
+    }
+    interface Keys  {
+        + GenerateNewKeyPair() 
+        + LoadFromDisk() 
+        + WriteToDisk() 
+
+    }
+    interface P2PKeys  {
+        + KeyPair() p2pKeyPair
+
+    }
+    class P2PPrivateKey << (S,Aquamarine) >> {
+        - scalar kyber.Scalar
+        - group kyber.Group
+        - suite edwards25519.SuiteEd25519
+
+        + Sign(message string) P2pSignature
+        + String() string
+        + Bytes() ([]byte, error)
+        + Hex() string
+
+    }
+    class P2PPublicKey << (S,Aquamarine) >> {
+        - point kyber.Point
+
+        + String() string
+        + Bytes() ([]byte, error)
+        + Hex() string
+        + Verify(m string, S P2PSignature) bool
+
+    }
+    class P2PSignature << (S,Aquamarine) >> {
+        - r kyber.Point
+        - s kyber.Scalar
+
+        + GetSig() P2PSignature
+        + GetPublicKey(message string) kyber.Point
+        + String() string
+
+    }
+    interface P2pSignature  {
+        + GetPublicKey(message string) kyber.Point
+        + GetSig() P2PSignature
+
+    }
+    interface SignKey  {
+        + Sign(msg <font color=blue>interface</font>{}) 
+        + VerifySignature() 
+
+    }
+    class keys.PrivateKey << (T, #FF7700) >>  {
+    }
+    class keys.PublicKey << (T, #FF7700) >>  {
+    }
+    class p2pKeyPair << (S,Aquamarine) >> {
+        + SK P2PPrivateKey
+        + PK P2PPublicKey
+
+        + KeyPair() p2pKeyPair
+        + LoadFromDisk() 
+        + WriteToDisk() 
+        + GenerateNewKeyPair() 
+        + PublicKey() P2PPublicKey
+        + PrivateKey() P2PPrivateKey
+        + DerivePubKey(message string) (string, kyber.Point, kyber.Scalar)
+
+    }
+}
+"keys.Keys" *-- "keys.EncryptionKey"
+"keys.Keys" *-- "keys.P2PKeys"
+"keys.Key" *-- "keys.P2PPrivateKey"
+"keys.Key" *-- "keys.P2PPublicKey"
+"keys.Keys" *-- "keys.SignKey"
+
+"keys.Key" <|-- "keys.P2PPrivateKey"
+"keys.Key" <|-- "keys.P2PPublicKey"
+"keys.P2pSignature" <|-- "keys.P2PSignature"
+"keys.Keys" <|-- "keys.p2pKeyPair"
+"keys.P2PKeys" <|-- "keys.p2pKeyPair"
+
+namespace nodes {
+    class Master << (S,Aquamarine) >> {
+        - nodeConfig config.NodeConfig
+        - chain config.ChainConfig
+
+    }
+}
+
+
+namespace pod {
+    class DnaOperator << (S,Aquamarine) >> {
+        - params TemperProofParams
+        - processor *process
+        - trainer *Trainer
+
+    }
+    interface IOrganism  {
+        - calculateFitness(target []byte) 
+        - mutate(mutationRate float64) 
+
+    }
+    interface ITrainer  {
+        - calculateDifficultyOfTarget(target string) float64
+        - buildMarkovModel() (*gomarkov.Chain, error)
+        - saveMarkovModel(chain *gomarkov.Chain) 
+        - loadModel() (*gomarkov.Chain, error)
+        - generateProof(chain *gomarkov.Chain) string
+
+        + GetTrainingSet() <font color=blue>map</font>[int]string
+        + Train() string
+
+    }
+    class MediaOrganism << (S,Aquamarine) >> {
+        + DNA *image.RGBA
+        + Fitness int64
+
+    }
+    class MediaProof << (S,Aquamarine) >> {
+        - bwImgResized *image.RGBA
+        - bwImgGenerated *image.RGBA
+
+        + MediaType string
+
+        + LoadAndConvert(imagePath string) *image.RGBA
+
+    }
+    class Organism << (S,Aquamarine) >> {
+        + DNA []byte
+        + Fitness float64
+        + ParentA []byte
+        + ParentB []byte
+
+        - mutate(mutationRate float64) 
+        - calculateFitness(target []byte) 
+
+    }
+    class Proof << (S,Aquamarine) >> {
+        - hash string
+        - hmac string
+        - isVerified bool
+
+        - verifyProof() bool
+
+    }
+    interface TemperProof  {
+        - setMutationRate(rate float64) 
+        - setParseDuration(dur time.Duration) 
+        - setPopulationSize(size uint) 
+        - setMaxFitness(fit float64) 
+        - setTarget(target []byte) string
+        - createOrganism(target []byte) []Organism
+        - createPopulation(target []byte, popSize uint) Organism
+        - crossover(d1 Organism, d2 Organism) Organism
+        - naturalSelection(pool []Organism, population []Organism, target []byte) []Organism
+        - loadDictionary() 
+        - train() *TrainingDataSet
+        - getBest(population []Organism) Organism
+        - getMutationRate() float64
+
+    }
+    class TemperProofParams << (S,Aquamarine) >> {
+        + MutationRate float64
+        + ParseDuration time.Duration
+        + PopulationSize uint
+        + MaxFitness float64
+
+    }
+    class Trainer << (S,Aquamarine) >> {
+        - calculateDifficultyOfTarget(target string) float64
+        - buildMarkovModel() (*gomarkov.Chain, error)
+        - saveMarkovModel(chain *gomarkov.Chain) 
+        - loadModel() (*gomarkov.Chain, error)
+        - generateProof(chain *gomarkov.Chain) string
+
+        + GetTrainingSet() <font color=blue>map</font>[int]string
+        + Train() string
+
+    }
+    class TrainingData << (S,Aquamarine) >> {
+        - blockText string
+        - contentText string
+
+    }
+    class operator << (S,Aquamarine) >> {
+    }
+    class pod.TrainingDataSet << (T, #FF7700) >>  {
+    }
+    class process << (S,Aquamarine) >> {
+        - setTarget(trainer *Trainer) string
+        - createOrganism(target []byte) Organism
+        - createPopulation(target []byte, popSize uint) []Organism
+        - createGenePool(maxFitness float64, population []Organism, target []byte) []Organism
+        - naturalSelection(mutationRate float64, pool []Organism, population []Organism, target []byte) []Organism
+        - crossover(d1 Organism, d2 Organism) Organism
+        - getBest(population []Organism) Organism
+
+    }
+    class tProof << (S,Aquamarine) >> {
+    }
+}
+"pod.Proof" *-- "pod.MediaProof"
+"pod.IOrganism" *-- "pod.Organism"
+"pod.ITrainer" *-- "pod.Trainer"
+"pod.DnaOperator" *-- "pod.operator"
+"pod.TemperProof" *-- "pod.process"
+"pod.TemperProof" *-- "pod.tProof"
+
+"pod.IOrganism" <|-- "pod.Organism"
+"pod.ITrainer" <|-- "pod.Trainer"
+
+namespace sdk {
+    class AccountInfo << (S,Aquamarine) >> {
+        + Name string
+        + Keypairs <font color=blue>map</font>[string]*KeyPairInfo
+
+        + GetKeyPair(perm string) (*account.LoadedKeys, error)
+        + IsEncrypted() bool
+        + Decrypt(password []byte) error
+        + Encrypt(password []byte) error
+        + SaveTo(fileName string) error
+
+    }
+    interface AccountManager  {
+        + CheckIfLoadedAccount(id string) *accountManager
+        + GetLoadedAccount() *account.Account
+        + GetLoadedKeys() *account.Keys
+
+    }
+    class Bank << (S,Aquamarine) >> {
+        - minter BaseMinter
+
+        + Address string
+        + Accounts <font color=blue>map</font>[string]*accountManager
+        + ElectedComitee []*accountManager
+        + BaseCurrency *Coin
+        + OtherAssets []*Coin
+        + Liquidities <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+        + Circulating <font color=blue>map</font>[string]*CoinUnit
+        + DeadCoins <font color=blue>map</font>[string]*CoinUnit
+        + NumCirculating atomic.Uint64
+        + TotalAvailable atomic.Uint64
+        + PreMinted uint64
+        + Minted uint64
+        + LeftToMint uint64
+
+        + GetBaseBank() *Bank
+        + GetBankAddress() string
+        + GetBankAccount(id string) *accountManager
+        + GetElectedCommitee() []*accountManager
+        + TotalCoinsAvailable() uint64
+        + TotalCirculating() uint64
+        + GetMinter() BaseMinter
+        + IssueNewAsset(c *Coin) error
+        + BuyLiquidities(amount uint64) error
+        + SellLiquidities(amount uint64) error
+        + TransferFrom(fromAcct string, toAcct string, amount float64) 
+        + SignTransfer(txID string) 
+        + CancelTransfer(txID string) 
+        + SetTransferState(txID string, stateID int) 
+        + CreateNewBankAccount() *accountManager
+        + NewBaseCoin(info <font color=blue>map</font>[string]any) 
+
+    }
+    interface BankManager  {
+        + NewBaseCoin(info <font color=blue>map</font>[string]any) 
+        + GetBaseBank() *Bank
+        + GetBankAddress() string
+        + GetBankAccount(id string) *accountManager
+        + GetElectedCommitee() []*accountManager
+        + TotalCoinsAvailable() uint64
+        + TotalCirculating() uint64
+        + GetMinter() BaseMinter
+        + IssueNewAsset(c *Coin) error
+        + BuyLiquidities(amount uint64) error
+        + SellLiquidities(amount uint64) error
+        + TransferFrom(fromAcct string, toAcct string, amount float64) 
+        + SignTransfer(txID string) 
+        + CancelTransfer(txID string) 
+        + SetTransferState(txID string, stateID int) 
+        + CreateNewBankAccount() *accountManager
+
+    }
+    interface BaseMinter  {
+        - mint(currencyID string, amount uint64) 
+        - burn(currencyID string, amount uint64) 
+        - info() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+
+    }
+    class BootstrapNode << (S,Aquamarine) >> {
+        - host string
+        - port string
+
+    }
+    class Coin << (S,Aquamarine) >> {
+        + ID string
+        + Name string
+        + Symbol string
+        + MaxAvailable float64
+        + GenesisReward float64
+        + BlockReward float64
+        + Decimals int
+        + CoinbaseAddress string
+
+    }
+    class CoinUnit << (S,Aquamarine) >> {
+        + ID string
+        + MintedOn int64
+        + MintedBy string
+        + MintedFor string
+        + MintedTx string
+        + DnaProof string
+        + Owner string
+        + Value float64
+        + Valid bool
+        + Blacklisted bool
+        + Locked bool
+        + Spendable bool
+
+    }
+    class FileAccountStore << (S,Aquamarine) >> {
+        + AccountDir string
+
+        + LoadAccount(name string) (*AccountInfo, error)
+        + SaveAccount(a *AccountInfo) error
+        + DeleteAccount(name string) error
+        + ListAccounts() ([]*AccountInfo, error)
+
+    }
+    class GenesisBlock << (S,Aquamarine) >> {
+    }
+    class GenesisData << (S,Aquamarine) >> {
+        - chainID string
+        - network int
+        - payload *GenesisPayload
+        - stableGasFeePercent float32
+        - validators []*GenesisValidator
+        - coin *Coin
+
+    }
+    class GenesisPayload << (S,Aquamarine) >> {
+        - genesisBytes []byte
+
+    }
+    class GenesisValidator << (S,Aquamarine) >> {
+        + Address string
+        + StakingAmount float64
+
+    }
+    class KeyPairInfo << (S,Aquamarine) >> {
+        + ID string
+        + RawKey string
+        + KeyType string
+        + PubKey string
+        + Salt string
+        + EncryptedKey string
+        + Mac string
+
+        + ToKeyPair() (*account.LoadedKeys, error)
+        + IsEncrypted() bool
+        + Encrypt(password []byte) error
+        + Decrypt(password []byte) error
+
+    }
+    class QuantosBlockchainContext << (S,Aquamarine) >> {
+        + Ctx context.Context
+        + CurrentNetwork NetworkID
+        + CurrentVersion *Version
+        + Config *config.ChainConfig
+        + GenesisDNA string
+
+        + GenerateGenesisDnaProof() 
+
+    }
+    interface QuantosSDK  {
+        + Accounts() AccountManager
+
+    }
+    class Token << (S,Aquamarine) >> {
+        + ID string
+        + Name string
+        + Symbol string
+        + Decimals int
+        + MaxAvailable float64
+        + Mintable bool
+        + Burnable bool
+        + Upgradeable bool
+        + Killable bool
+        + Tradable bool
+        + GasFee float64
+        + CreationFee float64
+        + CreationTxAddress string
+        + BaseCoin *Coin
+        + CreatorAddress string
+        + ContractAddress string
+        + ContractABI string
+        + OwnerAddress string
+        + ContractCode string
+        + TokenType string
+        + TokenStruct any
+        + ApprovalSignature string
+        + ApprovedBy string
+        + Notes []string
+
+    }
+    class Version << (S,Aquamarine) >> {
+    }
+    class accountManager << (S,Aquamarine) >> {
+        + Ctx context.Context
+        + Keys *account.LoadedKeys
+        + ID string
+
+        + CheckIfLoadedAccount(id string) *accountManager
+        + GetLoadedAccount() *account.Account
+
+    }
+    class minter << (S,Aquamarine) >> {
+        - mint(currencyID string, amount uint64) 
+        - burn(currencyID string, amount uint64) 
+        - info() <font color=blue>map</font>[string]<font color=blue>interface</font>{}
+
+    }
+    class sdk.NetworkID << (T, #FF7700) >>  {
+    }
+}
+"version.SemVer" *-- "sdk.Version"
+"sdk.AccountManager" *-- "sdk.accountManager"
+"sdk.BaseMinter" *-- "sdk.minter"
+
+"sdk.BankManager" <|-- "sdk.Bank"
+"sdk.BaseMinter" <|-- "sdk.minter"
+
+namespace serializer {
+    class SerializableItem << (S,Aquamarine) >> {
+        + EncodingType int64
+        + Payload <font color=blue>interface</font>{}
+        + Encoder Serializer
+
+    }
+    interface Serializer  {
+        + Serialize( <font color=blue>interface</font>{}) (*any.Any, error)
+        + Unserialize( *any.Any) (<font color=blue>interface</font>{}, error)
+
+    }
+}
+
+
+namespace store {
+    class MemoryDB << (S,Aquamarine) >> {
+        - db *memdb.MemDB
+        - schema *memdb.DBSchema
+
+        + InsertOne(tableName string, data <font color=blue>interface</font>{}) error
+        + InsertMany(tableName string, data []<font color=blue>interface</font>{}) error
+        + FindOne(tableName string, key string, data string) (<font color=blue>interface</font>{}, error)
+        + SaveSnapShot() 
+
+    }
+    interface Query  {
+        + FindOne(params ...<font color=blue>interface</font>{}) (Record, <font color=blue>interface</font>{}, error)
+
+    }
+    class Record << (S,Aquamarine) >> {
+        + SType StorageType
+        + RType StorageElementsType
+        + ID string
+        + Data []byte
+        + Immutable bool
+        + CreatedOn time.Time
+        + UpdatedOn time.Time
+        + DeletedOn time.Time
+        + Ref *RecordIndex
+
+    }
+    class RecordIndex << (S,Aquamarine) >> {
+        + ID string
+        + HasKeys []string
+        + BucketName string
+        + Order int32
+
+    }
+    interface Storage  {
+        + CreateNew(ctx context.Context, params ...<font color=blue>interface</font>{}) (Store, error)
+        + GetStore( context.Context) Store
+
+    }
+    interface Store  {
+        + InitDB( StorageType) Storage
+        + GetInstance( context.Context) Storage
+
+    }
+    class store.StorageElementsType << (T, #FF7700) >>  {
+    }
+    class store.StorageType << (T, #FF7700) >>  {
+    }
+}
+
+
+namespace trie {
+    class MTree << (S,Aquamarine) >> {
+        + ChainID string
+        + ChainVersion string
+        + Tree *merkletree.MerkleTree
+        + Proofs <font color=blue>map</font>[int]*Proof
+
+        + NewMerkleTree(data [][]byte) 
+        + NewMerkleFromStruct(data []any) 
+        + GetFilePath() string
+
+    }
+    class Proof << (S,Aquamarine) >> {
+        + Index int
+        + Proof string
+        + Height int
+        + Timestamp int64
+
+    }
+    interface QMerkleTree  {
+        + NewMerkleTree(data [][]byte) 
+        + NewMerkleFromStruct(data []any) 
+
+    }
+}
+
+"trie.QMerkleTree" <|-- "trie.MTree"
+
+namespace tx {
+    class Transaction << (S,Aquamarine) >> {
+    }
+    interface TxManager  {
+        + CreateTransaction(from string, to string, amount string, currencyID uint) 
+        + ValidateTransaction(validator string, txid string) bool
+        + IncludeTransactionInBlock(txid string, txdata string) bool
+
+    }
+}
+
+
+namespace uptime {
+    class UM << (S,Aquamarine) >> {
+        + UP *Uptime
+
+        - alive() bool
+        - up() *Uptime
+        - update() 
+
+        + Start() 
+
+    }
+    class Uptime << (S,Aquamarine) >> {
+        + State <font color=blue>chan</font> bool
+        + Down <font color=blue>chan</font> bool
+
+    }
+    interface UptimeManager  {
+        - up() *Uptime
+        - alive() bool
+        - update() 
+
+        + Start() 
+
+    }
+}
+"uptime.UptimeManager" *-- "uptime.UM"
+
+"uptime.UptimeManager" <|-- "uptime.UM"
+
+namespace version {
+    class SemVer << (S,Aquamarine) >> {
+        + String() string
+        + Set(major int, minor int, patch int) 
+        + Hash() []byte
+        + Verify(other Version) bool
+        + Get() SemVer
+
+    }
+    interface Version  {
+        + String() string
+        + Set(major int, minor int, patch int) 
+        + Hash() []byte
+        + Verify(other Version) bool
+        + Get() SemVer
+
+    }
+    class version.SemVer << (T, #FF7700) >>  {
+    }
+}
+
+"version.Version" <|-- "version.SemVer"
+
+"__builtin__.<font color=blue>map</font>[uint32]string" #.. "fs.FileFlags"
+"__builtin__.[][]byte" #.. "blockchain.TreeContent"
+"__builtin__.[]byte" #.. "blockchain.Hash"
+"__builtin__.[]int" #.. "version.SemVer"
+"__builtin__.int" #.. "blockchain.TreeStates"
+"__builtin__.int" #.. "store.StorageElementsType"
+"__builtin__.int" #.. "store.StorageType"
+"__builtin__.uint32" #.. "sdk.NetworkID"
+"blockchain.<font color=blue>func</font>(*BlockV1, *VBlock) " #.. "blockchain.BlockHandlerFunc"
+"blockchain.<font color=blue>func</font>(*branch, <font color=blue>func</font>([]byte) ) " #.. "blockchain.treeWalkFunction"
+"keys.Key" #.. "keys.PrivateKey"
+"keys.Key" #.. "keys.PublicKey"
+"pod.[]TrainingData" #.. "pod.TrainingDataSet"
+@enduml
