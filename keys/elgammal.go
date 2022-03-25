@@ -1,3 +1,0 @@
-package keys
-
-// ELGAMMAL ENCRYPTION

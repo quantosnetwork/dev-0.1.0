@@ -39,6 +39,23 @@ namespace account {
         + Bytes() []byte
 
     }
+    interface Address  {
+        + GenerateNewAddress() *address
+
+    }
+    class AddressFileFormat << (S,Aquamarine) >> {
+        + EncryptedFile []byte
+        + Chksum uint32
+
+    }
+    class DecryptedAddressFormat << (S,Aquamarine) >> {
+        + Network byte
+        + PrivKey []byte
+        + PubKey []byte
+        + Signature []byte
+        + Suite string
+
+    }
     class Group << (S,Aquamarine) >> {
         + Name string
         + Items []*GroupItem
@@ -90,6 +107,18 @@ namespace account {
     class account.PermissionType << (T, #FF7700) >>  {
     }
     class account.ResourceID << (T, #FF7700) >>  {
+    }
+    class address << (S,Aquamarine) >> {
+        + Network byte
+        + PubBytes []byte
+        + Private []byte
+        + Suite *edwards25519.SuiteEd25519
+
+        + GenerateNewAddress(network byte) *address
+        + PrepareForWriting() []byte
+        + EncryptFormat(key []byte, data []byte) ([]byte, error)
+        + WriteAndLock(key []byte) error
+
     }
 }
 
@@ -359,23 +388,6 @@ namespace circuit {
 
 "circuit.NotificationClient" <|-- "circuit.ClientCircuitBreakerProxy"
 
-namespace common {
-    interface Context  {
-        + Authorize(pubKey string, password string) (account.Account, error)
-        + GetACL(ResourceID uint32) (*account.Permission, error)
-
-    }
-    class QContext << (S,Aquamarine) >> {
-        - availableKeys <font color=blue>map</font>[string]bool
-        - isCancellable bool
-
-        + Ctx context.Context
-        + CancelFunc context.CancelFunc
-
-    }
-}
-
-
 namespace config {
     class ChainConfig << (S,Aquamarine) >> {
         + ID int64
@@ -405,7 +417,7 @@ namespace config {
         + Worker <font color=blue>interface</font>{}
         + NodeState atomic.Int64
         + Uptime uptime.UptimeManager
-        + Keys keys.P2PKeys
+        + Keys p2p.P2PKeys
         + QuitCh <font color=blue>chan</font> <font color=blue>struct</font>{}
 
         + NewID() *ID
@@ -510,7 +522,81 @@ namespace hash {
 }
 
 
-namespace keys {
+namespace keygen {
+    interface AnonEncrypt  {
+        + GenEncryptionKeys(keyNum int) (*edwards25519.SuiteEd25519, []kyber.Point, []kyber.Scalar)
+        + Encrypt(X []kyber.Point, suite *edwards25519.SuiteEd25519, m []byte) []byte
+
+    }
+    class EncryptedData << (S,Aquamarine) >> {
+        - suite *edwards25519.SuiteEd25519
+        - y []kyber.Scalar
+        - cipherText []byte
+
+        + X []kyber.Point
+
+        + GetSuite() *edwards25519.SuiteEd25519
+        + GetCipherText() []byte
+        + GetX() []kyber.Point
+
+    }
+    interface KeyGen  {
+        + NewKeyPair(keyType Type) 
+        + GetPrivate() *privateKey
+        + GetPublic() *publicKey
+
+    }
+    class KyberKeyPair << (S,Aquamarine) >> {
+        - sk *kyber512.PrivateKey
+        - pk *kyber512.PublicKey
+
+        + RawPub []byte
+        + RawPriv []byte
+
+    }
+    class keygen.Type << (T, #FF7700) >>  {
+    }
+    class keygen.kyberPrivateKey << (T, #FF7700) >>  {
+    }
+    class keygen.kyberPublicKey << (T, #FF7700) >>  {
+    }
+    class keys << (S,Aquamarine) >> {
+        + KeyType Type
+        + Private any
+        + Public any
+        + Suite *edwards25519.SuiteEd25519
+
+        + GenEncryptionKeys(keyNum int) (*edwards25519.SuiteEd25519, []kyber.Point, []kyber.Scalar)
+        + Encrypt(X []kyber.Point, suite *edwards25519.SuiteEd25519, m []byte) []byte
+        + NewKeyPair(keyType Type) 
+        + KyberKeyGen() (*kyber512.PrivateKey, *kyber512.PublicKey)
+        + GetKyberKeypair() *KyberKeyPair
+
+    }
+    class privateKey << (S,Aquamarine) >> {
+    }
+    class publicKey << (S,Aquamarine) >> {
+    }
+    class "kyber.Point" as kyberPoint {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+    class "kyber.Scalar" as kyberScalar {
+        'This class was created so that we can correctly have an alias pointing to this name. Since it contains dots that can break namespaces
+    }
+}
+
+"keygen.AnonEncrypt" <|-- "keygen.keys"
+
+namespace nodes {
+    class Master << (S,Aquamarine) >> {
+        - nodeConfig config.NodeConfig
+        - chain config.ChainConfig
+
+    }
+}
+
+
+namespace p2p {
     interface EncryptionKey  {
         + Encrypt(msg <font color=blue>interface</font>{}) 
         + Decrypt(msg <font color=blue>interface</font>{}) 
@@ -571,9 +657,9 @@ namespace keys {
         + VerifySignature() 
 
     }
-    class keys.PrivateKey << (T, #FF7700) >>  {
+    class p2p.PrivateKey << (T, #FF7700) >>  {
     }
-    class keys.PublicKey << (T, #FF7700) >>  {
+    class p2p.PublicKey << (T, #FF7700) >>  {
     }
     class p2pKeyPair << (S,Aquamarine) >> {
         + SK P2PPrivateKey
@@ -589,26 +675,17 @@ namespace keys {
 
     }
 }
-"keys.Keys" *-- "keys.EncryptionKey"
-"keys.Keys" *-- "keys.P2PKeys"
-"keys.Key" *-- "keys.P2PPrivateKey"
-"keys.Key" *-- "keys.P2PPublicKey"
-"keys.Keys" *-- "keys.SignKey"
+"p2p.Keys" *-- "p2p.EncryptionKey"
+"p2p.Keys" *-- "p2p.P2PKeys"
+"p2p.Key" *-- "p2p.P2PPrivateKey"
+"p2p.Key" *-- "p2p.P2PPublicKey"
+"p2p.Keys" *-- "p2p.SignKey"
 
-"keys.Key" <|-- "keys.P2PPrivateKey"
-"keys.Key" <|-- "keys.P2PPublicKey"
-"keys.P2pSignature" <|-- "keys.P2PSignature"
-"keys.Keys" <|-- "keys.p2pKeyPair"
-"keys.P2PKeys" <|-- "keys.p2pKeyPair"
-
-namespace nodes {
-    class Master << (S,Aquamarine) >> {
-        - nodeConfig config.NodeConfig
-        - chain config.ChainConfig
-
-    }
-}
-
+"p2p.Key" <|-- "p2p.P2PPrivateKey"
+"p2p.Key" <|-- "p2p.P2PPublicKey"
+"p2p.P2pSignature" <|-- "p2p.P2PSignature"
+"p2p.Keys" <|-- "p2p.p2pKeyPair"
+"p2p.P2PKeys" <|-- "p2p.p2pKeyPair"
 
 namespace pod {
     class DnaOperator << (S,Aquamarine) >> {
@@ -1118,11 +1195,14 @@ namespace version {
 "__builtin__.uint32" #.. "account.PermissionType"
 "__builtin__.uint32" #.. "account.ResourceID"
 "__builtin__.uint32" #.. "block.BlockProxyQueries"
+"__builtin__.uint32" #.. "keygen.Type"
 "__builtin__.uint32" #.. "sdk.NetworkID"
 "block.<font color=blue>func</font>(*BlockV1, *VBlock) " #.. "block.BlockHandlerFunc"
 "block.fontcolorbluefuncfontGuardFuncBlockProxyQueriesanyanyerror" #.. "block.RunFunc"
 "block.fontcolorbluefuncfontaccountAccountBlockProxyQuerieserror" #.. "block.GuardFunc"
-"keys.Key" #.. "keys.PrivateKey"
-"keys.Key" #.. "keys.PublicKey"
+"keygen.kyberPoint" #.. "keygen.kyberPublicKey"
+"keygen.kyberScalar" #.. "keygen.kyberPrivateKey"
+"p2p.Key" #.. "p2p.PrivateKey"
+"p2p.Key" #.. "p2p.PublicKey"
 "pod.[]TrainingData" #.. "pod.TrainingDataSet"
 @enduml
