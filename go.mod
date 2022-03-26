@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/barkimedes/go-deepcopy v0.0.0-20200817023428-a044a1957ca4
+	github.com/beevik/ntp v0.3.0
 	github.com/cloudflare/circl v1.1.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/golang/protobuf v1.5.2
@@ -49,6 +50,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	go.dedis.ch/fixbuf v1.0.3 // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220318055525-2edf467146b5 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
