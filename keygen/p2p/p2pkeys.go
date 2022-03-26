@@ -1,4 +1,4 @@
-package keys
+package p2p
 
 import (
 	"encoding/hex"

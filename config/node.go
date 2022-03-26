@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-hclog"
-	"github.com/quantosnetwork/v0.1.0-dev/keys"
+	"github.com/quantosnetwork/v0.1.0-dev/keygen/p2p"
 	"github.com/quantosnetwork/v0.1.0-dev/serializer"
 	"github.com/quantosnetwork/v0.1.0-dev/uptime"
 	"github.com/quantosnetwork/v0.1.0-dev/version"
@@ -30,7 +30,7 @@ type NodeConfig struct {
 	Worker        interface{}
 	NodeState     atomic.Int64
 	Uptime        uptime.UptimeManager
-	Keys          keys.P2PKeys
+	Keys          p2p.P2PKeys
 	seed          []byte
 
 	QuitCh chan struct{}
@@ -70,7 +70,7 @@ type ID struct {
 
 func (nc *NodeConfig) NewID() *ID {
 
-	nc.Keys = keys.NewP2PKeys()
+	nc.Keys = p2p.NewP2PKeys()
 	nc.seed = IDSeed()
 	pubString, _point, _scalar := nc.Keys.KeyPair().DerivePubKey(hex.EncodeToString(nc.seed))
 	buf := make([]byte, base64.StdEncoding.EncodedLen(len([]byte(pubString))))

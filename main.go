@@ -16,8 +16,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 package main
 
-import "github.com/quantosnetwork/v0.1.0-dev/cmd"
+import (
+	"github.com/quantosnetwork/v0.1.0-dev/cmd"
+)
 
 func main() {
 	cmd.Execute()
+	/*buf := make([]byte, 32)
+	frand.Read(buf)
+	account.CreateNewAddress(byte(0x00), hex.EncodeToString(buf)[:32])*/
+
 }

@@ -63,25 +63,6 @@ func (a Account) NewFromKeys(id, ownerKey, activeKey string) *Account {
 	return acc
 }
 
-type GroupItem struct {
-	ID         string //keypair id
-	Permission string
-	IsKeyPair  bool
-	Weight     int
-}
-
-type Group struct {
-	Name  string
-	Items []*GroupItem
-}
-
-type Permission struct {
-	Name      string
-	Groups    []string
-	Items     []*GroupItem
-	Threshold int
-}
-
 func NewAccountManager() IAccount {
 	var A Account
 	return A

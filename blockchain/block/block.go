@@ -1,8 +1,9 @@
-package blockchain
+package block
 
 import (
 	"encoding/json"
 	"github.com/barkimedes/go-deepcopy" //nolint:typecheck
+	"github.com/quantosnetwork/v0.1.0-dev/blockchain"
 	"github.com/quantosnetwork/v0.1.0-dev/hash"
 	"github.com/quantosnetwork/v0.1.0-dev/trie"
 	"github.com/quantosnetwork/v0.1.0-dev/tx" //nolint:typecheck
@@ -54,9 +55,9 @@ type BlockHeader struct {
 type BlockV1 struct {
 	Head           *BlockHeader
 	payload        map[string][]byte
-	OpenedTxSlots  [MaxTxPerBlock]map[string]*tx.Transaction
+	OpenedTxSlots  [blockchain.MaxTxPerBlock]map[string]*tx.Transaction
 	Signatures     map[string][]byte
-	ContractsSlots [MaxContractPerBlock]map[string]interface{}
+	ContractsSlots [blockchain.MaxContractPerBlock]map[string]interface{}
 	Nonce          int
 	Validators     map[string]bool
 	isFull         atomic.Bool
@@ -144,12 +145,12 @@ func (vb *VBlock) NewBlock() *BlockV1 {
 	bh := new(BlockHeader)
 	b.Head = bh
 	vb.blockObject = b
-	bm := NewBlockchainManager()
+	bm := blockchain.NewBlockchainManager()
 	b._calculateMerkleTree(bm)
 	return b
 }
 
-func (b *BlockV1) _calculateMerkleTree(chain Manager) {
+func (b *BlockV1) _calculateMerkleTree(chain blockchain.Manager) {
 
 	merkleTxData := b.Transactions
 	merkleRootData := chain.GetAllBlocks()
