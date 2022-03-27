@@ -26,6 +26,8 @@ require (
 	go.uber.org/atomic v1.9.0
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
 	golang.org/x/image v0.0.0-20220321031419-a8550c1d254a
+	google.golang.org/grpc v1.45.0
+	google.golang.org/protobuf v1.28.0
 	lukechampine.com/blake3 v1.1.7
 	lukechampine.com/frand v1.4.2
 )
@@ -54,7 +56,7 @@ require (
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220318055525-2edf467146b5 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect

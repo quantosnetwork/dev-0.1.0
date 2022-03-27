@@ -1,0 +1,14 @@
+version: v1
+name: buf.build/quantos/dev
+deps:
+  - buf.build/googleapis/googleapis
+
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT
+  except:
+    - PACKAGE_VERSION_SUFFIX
+    - FIELD_LOWER_SNAKE_CASE

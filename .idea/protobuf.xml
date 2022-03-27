@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BufFileManager">
+    <libraries>
+      <module>
+        <name>buf.build/googleapis/googleapis</name>
+        <path>$USER_HOME$/.cache/buf/v1/module/data/buf.build/googleapis/googleapis/0f45818f23164927b753ca450a5ed5bf</path>
+        <reference>buf.build/googleapis/googleapis:0f45818f23164927b753ca450a5ed5bf</reference>
+        <yaml>$USER_HOME$/.cache/buf/v1/module/data/buf.build/googleapis/googleapis/0f45818f23164927b753ca450a5ed5bf/buf.yaml</yaml>
+      </module>
+    </libraries>
+    <modules>
+      <module>
+        <dependencies>
+          <set>
+            <option value="buf.build/googleapis/googleapis" />
+          </set>
+        </dependencies>
+        <lockedDependencies>
+          <dependency>
+            <commit>0f45818f23164927b753ca450a5ed5bf</commit>
+            <owner>googleapis</owner>
+            <remote>buf.build</remote>
+            <repository>googleapis</repository>
+          </dependency>
+        </lockedDependencies>
+        <name>buf.build/quantos/dev</name>
+        <path>$PROJECT_DIR$</path>
+        <yaml>$PROJECT_DIR$/buf.yaml</yaml>
+      </module>
+    </modules>
+  </component>
+  <component name="BufSettings">
+    <option name="path" value="/opt/homebrew/bin/buf" />
+  </component>
+</project>

@@ -1,0 +1,90 @@
+syntax = "proto3";
+package proto.v1;
+option go_package = "github.com/quantosnetwork/dev-0.1.0/proto/v1";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+
+message JobStreamRequest {
+  oneof payload {
+    State state = 1;
+    RelayMessage relay_message = 2;
+  }
+}
+
+message State {
+  Type type = 1;
+
+  // Workers use this field to submit their local aggregator delta values wen
+  // reaching the POST step. The master collects the deltas, aggregates them to
+  // its own aggregator values and broadcasts the global aggregator values in
+  // the response. Workers must then *overwrite* their local aggregator values
+  // with the values provided by the master.
+  map<string, google.protobuf.Any> aggregator_values = 2;
+
+  // Workers use this field to submit their local active-in-step count when
+  // reaching the POST_KEEP_RUNNING step. The step response broadcasted by
+  // the master uses the same field to specify the global active-in-step count
+  // that the workers should pass to the graph executor callbacks.
+  int64 active_in_state = 3;
+
+  // Type of Job State
+  enum Type {
+    TYPE_INVALID_UNSPECIFIED = 0;
+
+    // This step corresponds to the PRE step of the executor callback.
+    TYPE_PRE = 1;
+
+    // This step corresponds to the POST step of the executor callback.
+    TYPE_POST = 2;
+
+    // This step corresponds to the POST_KEEP_RUNNING step of the executor
+    // callback.
+    TYPE_POST_KEEP_RUNNING = 3;
+
+    // This step indicates to the master that the worker has successfully
+    // completed the graph execution and is ready to perist the computation
+    // results.
+    TYPE_EXECUTED_GRAPH = 4;
+
+    // This step indicates to the master that the worker has successfully
+    // persisted the computation results.
+    TYPE_PERSISTED_RESULTS = 5;
+
+    // This step indicates to the master that the worker has completed the job.
+    TYPE_COMPLETED_JOB = 6;
+  }
+}
+
+message JobStreamResponse {
+  oneof payload {
+    JobDetails job_details = 1;
+    State state = 2;
+    RelayMessage relay_message = 3;
+  }
+}
+
+message RelayMessage {
+  // The message destination UUID.
+  string destination = 1;
+
+  // The serialized message contents.
+  google.protobuf.Any message = 2;
+}
+//JobDetails describes a job assigned by a master node to a worker.
+message JobDetails {
+  // A unique ID for the job.
+  string job_id = 1;
+
+  // The creation time for the job.
+  google.protobuf.Timestamp created_at = 2;
+
+  // The [from, to) UUID range assigned to the worker. Note that from is
+  // inclusive and to is exclusive.
+  bytes partition_from_uuid = 3;
+  bytes partition_to_uuid = 4;
+}
+
+service JobQueueService {
+  rpc JobStream(stream JobStreamRequest) returns (stream JobStreamResponse);
+}
