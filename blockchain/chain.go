@@ -3,7 +3,6 @@ package blockchain
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/quantosnetwork/v0.1.0-dev/blockchain/block"
 	"github.com/quantosnetwork/v0.1.0-dev/hash"
 	"github.com/quantosnetwork/v0.1.0-dev/store"
 	"github.com/quantosnetwork/v0.1.0-dev/version"
@@ -18,8 +17,8 @@ type Blockchain struct {
 	NetworkID    uint32
 	SemVer       version.SemVer
 	GenesisBlock []byte
-	blocks       map[string]*block.Block
-	blockHeaders map[string]*block.BlockHeader
+	blocks       map[string]*Block
+	blockHeaders map[string]*BlockHeader
 	storage      store.Store
 	ctx          context.Context
 	manager      blockchainManager

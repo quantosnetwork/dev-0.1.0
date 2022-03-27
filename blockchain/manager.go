@@ -3,7 +3,6 @@ package blockchain
 import (
 	"github.com/hashicorp/golang-lru"
 	"github.com/looplab/fsm"
-	"github.com/quantosnetwork/v0.1.0-dev/blockchain/block"
 	"github.com/quantosnetwork/v0.1.0-dev/config"
 	"github.com/quantosnetwork/v0.1.0-dev/tx"
 )
@@ -12,23 +11,23 @@ const MaxTxPerBlock = 100
 const MaxContractPerBlock = 30
 
 type Manager interface {
-	CreateNewBlock(chainID string, creator string, block *block.BlockV1) (block.Block, error)
+	CreateNewBlock(chainID string, creator string, block *BlockV1) (Block, error)
 	CreateGenesis() error
-	GetBlockHeaders() []*block.BlockHeader
+	GetBlockHeaders() []*BlockHeader
 	GetReceipts() []interface{}
-	GetAllBlocks() []block.Block
+	GetAllBlocks() []Block
 	GetBlockFromHeight(height uint64)
-	GetGenesisBlock() block.Block
-	GetBlockByHeight(height uint64) (block.Block, error)
-	GetBlockByIndex(index uint64) (block.Block, error)
-	GetBlockByTxID(txID string) (block.Block, error)
+	GetGenesisBlock() Block
+	GetBlockByHeight(height uint64) (Block, error)
+	GetBlockByIndex(index uint64) (Block, error)
+	GetBlockByTxID(txID string) (Block, error)
 	GetCurrentState()
-	GetLastBlock() block.Block
-	SignBlock(block *block.BlockV1)
+	GetLastBlock() Block
+	SignBlock(block *BlockV1)
 	ValidateBlockchain(chainID string) bool
 	GetCoinbase(currencyID uint)
 	Accounts() // returns account manager
-	Blocks() *block.VBlock
+	Blocks() *VBlock
 	Consensus()       // returns consensus manager
 	States()          // returns states manager
 	Tx() tx.TxManager // returns tx manager
@@ -45,7 +44,7 @@ type Manager interface {
 
 type blockchainManager struct{}
 
-func (b blockchainManager) CreateNewBlock(chainID string, creator string, block *block.BlockV1) (block.Block, error) {
+func (b blockchainManager) CreateNewBlock(chainID string, creator string, block *BlockV1) (Block, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -55,7 +54,7 @@ func (b blockchainManager) CreateGenesis() error {
 	panic("implement me")
 }
 
-func (b blockchainManager) GetBlockHeaders() []*block.BlockHeader {
+func (b blockchainManager) GetBlockHeaders() []*BlockHeader {
 	//TODO implement me
 	panic("implement me")
 }
@@ -65,8 +64,8 @@ func (b blockchainManager) GetReceipts() []interface{} {
 	panic("implement me")
 }
 
-func (b blockchainManager) GetAllBlocks() []block.Block {
-	bs := make([]block.Block, 1)
+func (b blockchainManager) GetAllBlocks() []Block {
+	bs := make([]Block, 1)
 	return bs
 }
 
@@ -75,22 +74,22 @@ func (b blockchainManager) GetBlockFromHeight(height uint64) {
 	panic("implement me")
 }
 
-func (b blockchainManager) GetGenesisBlock() block.Block {
+func (b blockchainManager) GetGenesisBlock() Block {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b blockchainManager) GetBlockByHeight(height uint64) (block.Block, error) {
+func (b blockchainManager) GetBlockByHeight(height uint64) (Block, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b blockchainManager) GetBlockByIndex(index uint64) (block.Block, error) {
+func (b blockchainManager) GetBlockByIndex(index uint64) (Block, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b blockchainManager) GetBlockByTxID(txID string) (block.Block, error) {
+func (b blockchainManager) GetBlockByTxID(txID string) (Block, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -100,12 +99,12 @@ func (b blockchainManager) GetCurrentState() {
 	panic("implement me")
 }
 
-func (b blockchainManager) GetLastBlock() block.Block {
+func (b blockchainManager) GetLastBlock() Block {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (b blockchainManager) SignBlock(block *block.BlockV1) {
+func (b blockchainManager) SignBlock(block *BlockV1) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -126,8 +125,8 @@ func (b blockchainManager) Accounts() {
 }
 
 // Blocks blockchainManager.Blocks is an alias to blockchainManager.GetAllBlocks will return all Block interfaces
-func (b blockchainManager) Blocks() *block.VBlock {
-	return block.GetBlockProxy()
+func (b blockchainManager) Blocks() *VBlock {
+	return GetBlockProxy()
 }
 
 func (b blockchainManager) Consensus() {
