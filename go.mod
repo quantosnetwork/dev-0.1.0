@@ -21,7 +21,6 @@ require (
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.10.1
 	github.com/wealdtech/go-merkletree v1.0.0
-	github.com/zeebo/blake3 v0.2.2
 	go.dedis.ch/kyber/v3 v3.0.13
 	go.uber.org/atomic v1.9.0
 	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
@@ -39,7 +38,6 @@ require (
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/jfeliu007/goplantuml v1.5.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect

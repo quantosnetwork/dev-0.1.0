@@ -18,6 +18,7 @@ package main
 
 import (
 	"github.com/quantosnetwork/v0.1.0-dev/cmd"
+	_ "github.com/quantosnetwork/v0.1.0-dev/config"
 )
 
 func main() {
@@ -25,5 +26,6 @@ func main() {
 	/*buf := make([]byte, 32)
 	frand.Read(buf)
 	account.CreateNewAddress(byte(0x00), hex.EncodeToString(buf)[:32])*/
+	select {}
 
 }

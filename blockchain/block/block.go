@@ -54,7 +54,7 @@ type BlockHeader struct {
 
 type BlockV1 struct {
 	Head           *BlockHeader
-	payload        map[string][]byte
+	Payload        map[string][]byte
 	OpenedTxSlots  [blockchain.MaxTxPerBlock]map[string]*tx.Transaction
 	Signatures     map[string][]byte
 	ContractsSlots [blockchain.MaxContractPerBlock]map[string]interface{}
@@ -88,7 +88,7 @@ func (b BlockV1) Hash() []byte {
 }
 
 func (b BlockV1) Payload() map[string][]byte {
-	return b.payload
+	return b.Payload
 }
 
 func (b BlockV1) BlockTime() int64 {

@@ -54,10 +54,7 @@ func (b *Blockchain) CreateOrLoadGenesis() {
 		g.Head.Timestamp = time.Now().UnixNano()
 		g.Head.Version = 1
 		g.Nonce = rand.Int()
-		g.isFull.Store(false)
-		g.payload = map[string][]byte{}
 		g.Signatures = map[string][]byte{}
-		b.manager.Blocks().blockObject = g
 		b.manager.Blocks().WriteAsJson(g)
 
 	} else {
