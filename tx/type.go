@@ -1,0 +1,17 @@
+package tx
+
+type Type uint32
+
+const (
+	DEFAULT Type = iota
+	COINBASE
+	DEFERRED
+	MULTIRECIPIENT
+	SIGNATURE
+	WALLET
+	MULTIWALLET
+	CURRENCY
+	SWAP
+	CONTENT
+	EMPTY
+)
