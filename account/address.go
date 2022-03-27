@@ -5,17 +5,56 @@ import (
 	"crypto/cipher"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/davecgh/go-spew/spew"
+	"errors"
+	"fmt"
+	"github.com/mr-tron/base58"
 	"go.dedis.ch/kyber/v3/group/edwards25519"
 	"go.dedis.ch/kyber/v3/xof/blake2xb"
+	"golang.org/x/crypto/scrypt"
 	"hash/crc32"
 	"io/ioutil"
 	"log"
 	"lukechampine.com/frand"
 )
 
-type Address interface {
+type IAddress interface {
 	GenerateNewAddress() *address
+	GetAddressFromFile(pubStr string) *Address
+}
+
+type AddressRepository struct {
+	List map[string]bool
+}
+
+func (ar AddressRepository) New() *AddressRepository {
+	r := new(AddressRepository)
+	r.List = map[string]bool{}
+	return r
+}
+
+func (ar *AddressRepository) Add(addr Address) {
+	ar.List[addr.String()] = true
+}
+
+func (ar *AddressRepository) Disable(addr Address) {
+	ar.List[addr.String()] = false
+}
+
+func (ar *AddressRepository) Has(addr Address) bool {
+	return ar.List[addr.String()] == true
+}
+
+const AddressPrefix = "QBX"
+
+type Address []byte
+
+func (a Address) String() string {
+	addr := fmt.Sprintf("QBX-%s", base58.Encode(a))
+	return addr
+}
+
+func (a Address) Bytes() []byte {
+	return a
 }
 
 type address struct {
@@ -55,6 +94,10 @@ func (a *address) PrepareForWriting() []byte {
 }
 
 func (a *address) EncryptFormat(key []byte, data []byte) ([]byte, error) {
+	key, salt, err := DeriveKey(key, nil)
+	if err != nil {
+		return nil, err
+	}
 	blockCipher, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -68,6 +111,7 @@ func (a *address) EncryptFormat(key []byte, data []byte) ([]byte, error) {
 		return nil, err
 	}
 	ciphertext := gcm.Seal(nonce, nonce, data, nil)
+	ciphertext = append(ciphertext, salt...)
 	return ciphertext, nil
 
 }
@@ -85,6 +129,7 @@ func (a *address) WriteAndLock(key []byte) error {
 	afw, _ := json.Marshal(af)
 	err = ioutil.WriteFile("./data/.keys/"+hex.EncodeToString(a.PubBytes)+".wal", afw, 0600)
 	if err != nil {
+
 		return err
 	}
 	return nil
@@ -103,14 +148,77 @@ type DecryptedAddressFormat struct {
 	Suite     string
 }
 
-func CreateNewAddress(network byte, key string) string {
+func GetAddressFromStorage(pub string, key string) (*DecryptedAddressFormat, error) {
+	b, err := ioutil.ReadFile("./data/.keys/" + pub + ".wal")
+	if err != nil {
+		return nil, errors.New("invalid address, not found")
+	}
+	var fileFormat AddressFileFormat
+	err = json.Unmarshal(b, &fileFormat)
+	if err != nil {
+		return nil, err
+	}
+	dec, err := Decrypt([]byte(key), fileFormat.EncryptedFile)
+	if err != nil {
+		return nil, errors.New("invalid key, address is locked")
+	}
+	var decAddr DecryptedAddressFormat
+	_ = json.Unmarshal(dec, &decAddr)
+	return &decAddr, nil
+
+}
+
+func CreateNewAddress(network byte, key string) (string, error) {
 	a := new(address)
-	addr := a.GenerateNewAddress(0x1e)
-	spew.Dump(addr)
+	addr := a.GenerateNewAddress(network)
+
 	addrString := hex.EncodeToString(addr.PubBytes)
 	err := addr.WriteAndLock([]byte(key))
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return addrString
+	return addrString, nil
+}
+
+func Decrypt(key, data []byte) ([]byte, error) {
+	salt, data := data[len(data)-32:], data[:len(data)-32]
+
+	key, _, err := DeriveKey(key, salt)
+	if err != nil {
+		return nil, err
+	}
+	blockCipher, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(blockCipher)
+	if err != nil {
+		return nil, err
+	}
+
+	nonce, ciphertext := data[:gcm.NonceSize()], data[gcm.NonceSize():]
+
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return plaintext, nil
+}
+
+func DeriveKey(password, salt []byte) ([]byte, []byte, error) {
+	if salt == nil {
+		salt = make([]byte, 32)
+		if _, err := frand.Read(salt); err != nil {
+			return nil, nil, err
+		}
+	}
+
+	key, err := scrypt.Key(password, salt, 1048576, 8, 1, 32)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return key, salt, nil
 }
