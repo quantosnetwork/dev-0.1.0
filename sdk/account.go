@@ -3,24 +3,24 @@ package sdk
 import (
 	"context"
 	"encoding/hex"
-	"github.com/quantosnetwork/v0.1.0-dev/account"
+	account2 "github.com/quantosnetwork/v0.1.0-dev/core/account"
 )
 
 type AccountManager interface {
 	CheckIfLoadedAccount(id string) *accountManager
-	GetLoadedAccount() *account.Account
-	GetLoadedKeys() *account.Keys
+	GetLoadedAccount() *account2.Account
+	GetLoadedKeys() *account2.Keys
 }
 
 type accountManager struct {
 	Ctx  context.Context
-	Keys *account.LoadedKeys
+	Keys *account2.LoadedKeys
 	ID   string
 	AccountManager
 }
 
 func (a accountManager) CheckIfLoadedAccount(id string) *accountManager {
-	keys := account.Keys{}
+	keys := account2.Keys{}
 	lk := keys.GetLoadedKeys(id)
 
 	return &accountManager{
@@ -29,10 +29,10 @@ func (a accountManager) CheckIfLoadedAccount(id string) *accountManager {
 	}
 }
 
-func (a *accountManager) GetLoadedAccount() *account.Account {
+func (a *accountManager) GetLoadedAccount() *account2.Account {
 	pb, _ := a.Keys.Pub.MarshalBinary()
 	sk, _ := a.Keys.Priv.MarshalBinary()
-	acct := account.NewAccountFromKeys(a.ID, hex.EncodeToString(sk), hex.EncodeToString(pb))
+	acct := account2.NewAccountFromKeys(a.ID, hex.EncodeToString(sk), hex.EncodeToString(pb))
 	return acct
 }
 

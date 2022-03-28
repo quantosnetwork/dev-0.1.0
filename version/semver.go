@@ -9,7 +9,7 @@ import (
 type SemVer [3]int
 
 func (v SemVer) String() string {
-	verString := fmt.Sprintf("v%i.%i.%i", v[0], v[1], v[2])
+	verString := fmt.Sprintf("v%x.%x.%x", v[0], v[1], v[2])
 	return verString
 }
 

@@ -3,9 +3,10 @@ package blockchain
 import (
 	"encoding/json"
 	"github.com/barkimedes/go-deepcopy" //nolint:typecheck
+	"github.com/quantosnetwork/v0.1.0-dev/core/trie"
+	"github.com/quantosnetwork/v0.1.0-dev/core/tx"
 	"github.com/quantosnetwork/v0.1.0-dev/hash"
-	"github.com/quantosnetwork/v0.1.0-dev/trie"
-	"github.com/quantosnetwork/v0.1.0-dev/tx" //nolint:typecheck
+	//nolint:typecheck
 	"go.uber.org/atomic"
 	"io/ioutil"
 	"strconv"
@@ -82,10 +83,6 @@ func (b BlockV1) Version() int32 {
 
 func (b BlockV1) Hash() []byte {
 	return b.Head.Hash
-}
-
-func (b BlockV1) Payload() map[string][]byte {
-	return b.Payload
 }
 
 func (b BlockV1) BlockTime() int64 {

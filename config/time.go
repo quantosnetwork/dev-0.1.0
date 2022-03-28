@@ -42,7 +42,7 @@ func SetTime() {
 func (t *Time) bgTimeSinceStart() {
 	ticker := time.NewTicker(time.Nanosecond * 1)
 
-	for _ = range ticker.C {
+	for range ticker.C {
 		SinceStarted = time.Duration(time.Since(StartedAt).Nanoseconds())
 		time.Sleep(time.Second * 10)
 		if SinceStarted.Nanoseconds() < EPOCH1 {

@@ -8,8 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/quantosnetwork/v0.1.0-dev/account"
 	"github.com/quantosnetwork/v0.1.0-dev/common"
+	account2 "github.com/quantosnetwork/v0.1.0-dev/core/account"
 	"golang.org/x/crypto/scrypt"
 	"lukechampine.com/frand"
 	"os"
@@ -35,7 +35,7 @@ func NewKeyPairInfo(rawKey string, keyType string) (*KeyPairInfo, error) {
 	kp.KeyType = keyType
 	id, _ := uuid.NewUUID()
 	kp.ID = id.String()
-	_, pub := account.NewKeyPair(id.String())
+	_, pub := account2.NewKeyPair(id.String())
 	pubb, err := pub.MarshalBinary()
 	if err != nil {
 		return nil, err
@@ -44,12 +44,12 @@ func NewKeyPairInfo(rawKey string, keyType string) (*KeyPairInfo, error) {
 	return kp, nil
 }
 
-func (k *KeyPairInfo) ToKeyPair() (*account.LoadedKeys, error) {
+func (k *KeyPairInfo) ToKeyPair() (*account2.LoadedKeys, error) {
 	if k.RawKey == "" {
 		return nil, fmt.Errorf("empty keypair")
 	}
-	priv, pub := account.NewKeyPair(k.ID)
-	lk := &account.LoadedKeys{
+	priv, pub := account2.NewKeyPair(k.ID)
+	lk := &account2.LoadedKeys{
 		Priv:       priv,
 		Pub:        pub,
 		PubKeySign: nil,
@@ -122,7 +122,7 @@ func NewAccountInfo() *AccountInfo {
 	return &AccountInfo{Name: "", Keypairs: make(map[string]*KeyPairInfo)}
 }
 
-func (a *AccountInfo) GetKeyPair(perm string) (*account.LoadedKeys, error) {
+func (a *AccountInfo) GetKeyPair(perm string) (*account2.LoadedKeys, error) {
 	kp, ok := a.Keypairs[perm]
 	if !ok {
 		return nil, fmt.Errorf("invalid permission %v", perm)

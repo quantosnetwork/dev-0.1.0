@@ -19,6 +19,7 @@ package main
 import (
 	"github.com/quantosnetwork/v0.1.0-dev/cmd"
 	_ "github.com/quantosnetwork/v0.1.0-dev/config"
+	_ "go.uber.org/automaxprocs"
 )
 
 func main() {
@@ -29,3 +30,5 @@ func main() {
 	select {}
 
 }
+
+// methods override

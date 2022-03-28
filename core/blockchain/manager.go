@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/golang-lru"
 	"github.com/looplab/fsm"
 	"github.com/quantosnetwork/v0.1.0-dev/config"
-	"github.com/quantosnetwork/v0.1.0-dev/tx"
+	"github.com/quantosnetwork/v0.1.0-dev/core/tx"
 )
 
 const MaxTxPerBlock = 100

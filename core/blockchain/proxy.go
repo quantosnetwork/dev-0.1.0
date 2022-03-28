@@ -3,7 +3,7 @@ package blockchain
 import (
 	"context"
 	"errors"
-	"github.com/quantosnetwork/v0.1.0-dev/account"
+	"github.com/quantosnetwork/v0.1.0-dev/core/account"
 	"sync"
 )
 

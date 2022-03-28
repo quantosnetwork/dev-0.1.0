@@ -1,7 +1,7 @@
 package sdk
 
 import (
-	"github.com/quantosnetwork/v0.1.0-dev/account"
+	"github.com/quantosnetwork/v0.1.0-dev/core/account"
 )
 
 type QuantosSDK interface {

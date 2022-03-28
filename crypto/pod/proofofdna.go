@@ -361,7 +361,8 @@ func GetProof(params TemperProofParams, blockTime time.Time) (string, string) {
 		bo := opp.processor.getBest(pop)
 		elapsed = time.Since(startTime)
 		blockTime.Add(elapsed)
-		fmt.Printf("\r generation: %d | %s | fitness: %2f | elapsed: %2f", generation, string(bo.DNA), bo.Fitness, elapsed)
+		fmt.Printf("\r generation: %d | %s | fitness: %2f | elapsed: %s", generation, string(bo.DNA), bo.Fitness,
+			elapsed)
 		//dur, _ := time.ParseDuration("30s")
 
 		if bytes.Compare(bo.DNA, target) == 0 /*|| elapsed.Seconds() <= dur.Seconds() */ {
