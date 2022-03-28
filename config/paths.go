@@ -90,11 +90,11 @@ func InitializePaths() map[string]*Path {
 		realPath := path.Join(string(BASE_PATH), string(pth))
 		if !P.Exists(realPath) {
 			newPath, _ := P.Create(realPath)
-			PathRepo[realPath] = newPath
+			PathRepo[newPath.ID] = newPath
 		}
 	}
-	for rp, _ := range PathRepo {
-		_ = os.MkdirAll(rp, 0755)
+	for _, pth2 := range PathRepo {
+		_ = os.MkdirAll(pth2.realPath, 0755)
 	}
 	return PathRepo
 }
