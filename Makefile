@@ -34,6 +34,8 @@ diagram:
 
 clean:
 	rm -rf *.puml
-	rm -rf *.png
+	rm -rf *.png && rm -rf *.jpg
 	rm -rf ${BINARY_PATH}/${BINARY_NAME}
+	rm ./.version
+	rm -rf vendor
 	go clean -cache
