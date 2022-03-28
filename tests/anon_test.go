@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/binary"
-	"github.com/quantosnetwork/v0.1.0-dev/crypto/anon"
+	"github.com/quantosnetwork/dev-0.1.0/crypto/anon"
 	"testing"
 )
 

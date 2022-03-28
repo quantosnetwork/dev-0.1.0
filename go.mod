@@ -1,4 +1,4 @@
-module github.com/quantosnetwork/v0.1.0-dev
+module github.com/quantosnetwork/dev-0.1.0
 
 go 1.18
 

@@ -2,7 +2,7 @@ package tx
 
 import (
 	"github.com/mr-tron/base58"
-	"github.com/quantosnetwork/v0.1.0-dev/config"
+	"github.com/quantosnetwork/dev-0.1.0/config"
 	"go.uber.org/atomic"
 	"lukechampine.com/frand"
 	"strconv"

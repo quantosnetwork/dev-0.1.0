@@ -17,8 +17,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"github.com/quantosnetwork/v0.1.0-dev/cmd"
-	_ "github.com/quantosnetwork/v0.1.0-dev/config"
+	"github.com/quantosnetwork/dev-0.1.0/cmd"
+	_ "github.com/quantosnetwork/dev-0.1.0/config"
 	_ "go.uber.org/automaxprocs"
 )
 

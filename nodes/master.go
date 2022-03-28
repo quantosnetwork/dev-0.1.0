@@ -1,7 +1,7 @@
 package nodes
 
 import (
-	"github.com/quantosnetwork/v0.1.0-dev/config"
+	"github.com/quantosnetwork/dev-0.1.0/config"
 )
 
 type Master struct {

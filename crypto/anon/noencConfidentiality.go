@@ -2,7 +2,7 @@ package anon
 
 import (
 	"crypto/rand"
-	"github.com/quantosnetwork/v0.1.0-dev/common"
+	"github.com/quantosnetwork/dev-0.1.0/common"
 	"io"
 	"log"
 )

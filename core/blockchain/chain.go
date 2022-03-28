@@ -3,9 +3,9 @@ package blockchain
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/quantosnetwork/v0.1.0-dev/hash"
-	"github.com/quantosnetwork/v0.1.0-dev/store"
-	"github.com/quantosnetwork/v0.1.0-dev/version"
+	"github.com/quantosnetwork/dev-0.1.0/hash"
+	"github.com/quantosnetwork/dev-0.1.0/store"
+	"github.com/quantosnetwork/dev-0.1.0/version"
 	"io/ioutil"
 	"math/rand"
 	"sync"

@@ -3,9 +3,9 @@ package blockchain
 import (
 	"encoding/json"
 	"github.com/barkimedes/go-deepcopy" //nolint:typecheck
-	"github.com/quantosnetwork/v0.1.0-dev/core/trie"
-	"github.com/quantosnetwork/v0.1.0-dev/core/tx"
-	"github.com/quantosnetwork/v0.1.0-dev/hash"
+	"github.com/quantosnetwork/dev-0.1.0/core/trie"
+	"github.com/quantosnetwork/dev-0.1.0/core/tx"
+	"github.com/quantosnetwork/dev-0.1.0/hash"
 	//nolint:typecheck
 	"go.uber.org/atomic"
 	"io/ioutil"

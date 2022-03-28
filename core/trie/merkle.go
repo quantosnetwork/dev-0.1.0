@@ -2,7 +2,7 @@ package trie
 
 import (
 	"encoding/json"
-	"github.com/quantosnetwork/v0.1.0-dev/fs"
+	"github.com/quantosnetwork/dev-0.1.0/fs"
 	"github.com/wealdtech/go-merkletree"
 	"strconv"
 	"time"

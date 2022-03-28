@@ -3,8 +3,8 @@ package config
 import (
 	"encoding/json"
 	"errors"
-	"github.com/quantosnetwork/v0.1.0-dev/core/module"
-	"github.com/quantosnetwork/v0.1.0-dev/fs"
+	"github.com/quantosnetwork/dev-0.1.0/core/module"
+	"github.com/quantosnetwork/dev-0.1.0/fs"
 	"path/filepath"
 )
 

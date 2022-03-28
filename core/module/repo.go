@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/looplab/fsm"
-	"github.com/quantosnetwork/v0.1.0-dev/color"
+	"github.com/quantosnetwork/dev-0.1.0/color"
 )
 
 type ErroredModule struct {

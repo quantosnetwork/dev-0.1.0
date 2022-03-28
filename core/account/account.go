@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cloudflare/circl/sign/ed25519"
-	"github.com/quantosnetwork/v0.1.0-dev/common"
+	"github.com/quantosnetwork/dev-0.1.0/common"
 	"log"
 )
 

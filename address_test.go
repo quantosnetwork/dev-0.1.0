@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/quantosnetwork/v0.1.0-dev/color"
-	"github.com/quantosnetwork/v0.1.0-dev/core/account"
+	"github.com/quantosnetwork/dev-0.1.0/color"
+	"github.com/quantosnetwork/dev-0.1.0/core/account"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"log"
