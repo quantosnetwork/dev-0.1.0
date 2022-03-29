@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"github.com/looplab/fsm"
+	"github.com/quantosnetwork/dev-0.1.0/logger"
+	"log"
 )
 
 // Global States configuration
@@ -14,6 +16,7 @@ const (
 	STATE_INITIALIZING
 	STATE_INITIALIZED
 	STATE_ERROR
+	STATE_READY
 )
 
 var GS map[GlobalState]string = map[GlobalState]string{
@@ -21,6 +24,7 @@ var GS map[GlobalState]string = map[GlobalState]string{
 	STATE_INITIALIZING: "initializing",
 	STATE_INITIALIZED:  "initialized",
 	STATE_ERROR:        "error",
+	STATE_READY:        "ready",
 }
 
 type GlobalStateMachine struct {
@@ -29,28 +33,25 @@ type GlobalStateMachine struct {
 
 func NewGlobalStateMachine() *GlobalStateMachine {
 	newFSM := fsm.NewFSM(
-		GS[STATE_IDLE],
+		GS[STATE_INITIALIZING],
 		fsm.Events{
-			{Name: "initializing", Src: []string{GS[STATE_IDLE]}, Dst: GS[STATE_INITIALIZED]},
+			{Name: "initializing", Src: []string{GS[STATE_INITIALIZING]}, Dst: GS[STATE_INITIALIZED]},
 			{Name: "initialized", Src: []string{GS[STATE_INITIALIZING]}, Dst: GS[STATE_INITIALIZED]},
 		},
 		fsm.Callbacks{
 			GS[STATE_INITIALIZING]: func(e *fsm.Event) {
 				err := Initializer()
-				if err != nil {
-					e.FSM.SetMetadata("error", err.Error())
-					fmt.Println("an error occurred")
-				}
 				if err == nil {
 					e.FSM.SetMetadata("error", false)
-					fmt.Println("Quantos is initializing")
+					log.Println("Quantos is initializing....")
 				}
+
 			},
 			GS[STATE_INITIALIZED]: func(e *fsm.Event) {
 				_, ok := e.FSM.Metadata("error")
-				if ok {
+				if !ok {
 					e.FSM.SetMetadata("initialized", true)
-					fmt.Println("Quantos is successfully initialized")
+					log.Println("Quantos is successfully initialized")
 				}
 			},
 		})
@@ -61,8 +62,24 @@ var InitState *GlobalStateMachine
 
 func init() {
 	InitState = NewGlobalStateMachine()
+	s := GetCurrentGlobalState()
+	log.Println(s)
+	err := InitState.Event("initializing")
+
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+
+		PrintState(GetCurrentGlobalState())
+	}
 }
 
 func GetCurrentGlobalState() string {
 	return InitState.Current()
+}
+
+func PrintState(s string) {
+
+	logger.Logger.Info("state " + s)
+
 }

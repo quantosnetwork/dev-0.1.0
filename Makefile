@@ -30,7 +30,7 @@ lint:
 	golangci-lint run --enable-all
 
 diagram:
-	go-plantuml -recursive . > quantos.puml
+	goplantuml -recursive . > quantos.puml
 
 clean:
 	rm -rf *.puml

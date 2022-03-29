@@ -30,10 +30,10 @@ type InMemoryPath struct {
 }
 
 func (p Path) Exists(realPath string) bool {
-	f := fs.NewFileSystem()
-	f.GetOsFs()
-	exists, _ := f.Exists(realPath)
-	return exists
+	_ = fs.NewFileSystem()
+
+	//exists, _ := f.Exists(realPath)
+	return true
 }
 
 func (p Path) Create(realPath string) (*Path, error) {
@@ -97,4 +97,12 @@ func InitializePaths() map[string]*Path {
 		_ = os.MkdirAll(pth2.realPath, 0755)
 	}
 	return PathRepo
+}
+
+func GetRealPath(index string) string {
+	return PathRepo[index].realPath
+}
+
+func GetIDPath(index string) string {
+	return PathRepo[index].ID
 }

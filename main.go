@@ -17,18 +17,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"github.com/quantosnetwork/dev-0.1.0/cmd"
 	_ "github.com/quantosnetwork/dev-0.1.0/config"
 	_ "go.uber.org/automaxprocs"
 )
 
 func main() {
-	cmd.Execute()
-	/*buf := make([]byte, 32)
-	frand.Read(buf)
-	account.CreateNewAddress(byte(0x00), hex.EncodeToString(buf)[:32])*/
-	select {}
-
+	//config.Initializer()
 }
 
 // methods override

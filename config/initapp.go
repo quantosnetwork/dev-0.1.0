@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/quantosnetwork/dev-0.1.0/cmd"
 	"sync"
 )
 
@@ -10,9 +11,11 @@ func Initializer() error {
 	defer wg.Done()
 	wg.Add(1)
 	// InitializePaths creates missing paths
-	go func() {
-		InitializePaths()
-	}()
-	wg.Wait()
+
+	go InitializePaths()
+	go InitDB()
+
+	cmd.Execute()
+
 	return nil
 }
