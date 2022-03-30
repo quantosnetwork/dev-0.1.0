@@ -1,0 +1,27 @@
+syntax="proto3";
+package quantos.pkg.v1;
+option go_package = "github.com/quantosnetwork/dev-0.1.0/proto/v1";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "quantos/pkg/v1/node.proto";
+
+message Block {
+  string ID = 1;
+  string Hash = 2;
+  string PrevHash = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  string ValidatorAddr = 5;
+}
+
+message Blockchain {
+  string chain_id = 1;
+  string version = 2;
+  string genesis_hash = 3;
+  string merkle_root = 4;
+  repeated Block blocks = 5;
+  int32 num_blocks = 6;
+  int32 num_tx = 7;
+  Block blockchain_head = 8;
+  repeated Validator validators = 9;
+}
+
