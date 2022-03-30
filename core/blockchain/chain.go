@@ -170,6 +170,7 @@ func (b *Blockchain) ValidateBlockchain() error {
 			return errors.New("blockchain is invalid")
 		}
 	}
+	return nil
 }
 
 func VerifyHash(currentHash string, prevHash string, ts string, valaddr string) error {

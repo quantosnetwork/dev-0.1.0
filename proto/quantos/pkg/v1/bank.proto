@@ -1,0 +1,86 @@
+syntax = "proto3";
+package quantos.pkg.v1;
+option go_package = "github.com/quantosnetwork/dev-0.1.0/proto/v1";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+message DefaultCurrencyRequest {
+
+}
+
+message DefaultCurrencyResponse {
+
+}
+
+message CurrencyInfo {
+  string name = 1;
+  string symbol = 2;
+  string coinbase = 3;
+  uint64 circulating = 4;
+  uint64 available = 5;
+  uint64 max_available = 6;
+  uint64 value_usd = 7;
+  string signature = 8;
+}
+
+message BankInfo {
+  string address = 1;
+  CurrencyInfo default_coin = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  MinterBurner minter = 4;
+  repeated Swapper swappers = 5;
+}
+
+message Swapper {
+  string address = 1;
+  string bridge_address = 2;
+  string contract_address = 3;
+  repeated CurrencyInfo can_swap = 4;
+}
+
+message MinterBurner {
+  string address = 1;
+  uint64 total_minted = 2;
+  uint64 total_burned = 3;
+}
+
+enum TxStatus {
+  Submitted = 0;
+  Pending = 1;
+  Created = 2;
+  InQueue = 3;
+  WaitingConfirmations = 4;
+  Confirming = 5;
+  Confirmed = 6;
+  Cancelled = 7;
+}
+
+message TxQueue {
+  repeated string validatorPool = 1;
+  repeated TxQueueElement elements = 2;
+}
+
+message TxQueueElement {
+  int64 nonce = 1;
+  Tx transaction = 2;
+  TxStatus status = 3;
+}
+
+message Tx {
+  uint64 amount = 1;
+  string from = 2;
+  string to = 3;
+  uint64 fees = 4;
+  string TxID = 5;
+  repeated string signatures = 6;
+  bytes merkle_root = 7;
+  string contract_address = 8;
+  string notes = 9;
+  string ref = 10;
+  CurrencyInfo currency = 11;
+}
+
+service Bank {
+  rpc GetDefaultCurrency(DefaultCurrencyRequest) returns (DefaultCurrencyResponse);
+
+}
