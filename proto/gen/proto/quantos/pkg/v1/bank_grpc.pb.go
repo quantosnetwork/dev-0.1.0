@@ -22,7 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BankClient interface {
-	GetDefaultCurrency(ctx context.Context, in *DefaultCurrencyRequest, opts ...grpc.CallOption) (*DefaultCurrencyResponse, error)
+	GetCurrencyInfo(ctx context.Context, in *DefaultCurrencyRequest, opts ...grpc.CallOption) (*DefaultCurrencyResponse, error)
+	SendTransaction(ctx context.Context, in *TxSendAmountRequest, opts ...grpc.CallOption) (*TransactionInfo, error)
+	GetTxQueueElements(ctx context.Context, in *RequestTxQueueElements, opts ...grpc.CallOption) (Bank_GetTxQueueElementsClient, error)
 }
 
 type bankClient struct {
@@ -33,28 +35,77 @@ func NewBankClient(cc grpc.ClientConnInterface) BankClient {
 	return &bankClient{cc}
 }
 
-func (c *bankClient) GetDefaultCurrency(ctx context.Context, in *DefaultCurrencyRequest, opts ...grpc.CallOption) (*DefaultCurrencyResponse, error) {
+func (c *bankClient) GetCurrencyInfo(ctx context.Context, in *DefaultCurrencyRequest, opts ...grpc.CallOption) (*DefaultCurrencyResponse, error) {
 	out := new(DefaultCurrencyResponse)
-	err := c.cc.Invoke(ctx, "/quantos.pkg.v1.Bank/GetDefaultCurrency", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/quantos.pkg.v1.Bank/GetCurrencyInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
+func (c *bankClient) SendTransaction(ctx context.Context, in *TxSendAmountRequest, opts ...grpc.CallOption) (*TransactionInfo, error) {
+	out := new(TransactionInfo)
+	err := c.cc.Invoke(ctx, "/quantos.pkg.v1.Bank/SendTransaction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bankClient) GetTxQueueElements(ctx context.Context, in *RequestTxQueueElements, opts ...grpc.CallOption) (Bank_GetTxQueueElementsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Bank_ServiceDesc.Streams[0], "/quantos.pkg.v1.Bank/GetTxQueueElements", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &bankGetTxQueueElementsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Bank_GetTxQueueElementsClient interface {
+	Recv() (*TxQueueElement, error)
+	grpc.ClientStream
+}
+
+type bankGetTxQueueElementsClient struct {
+	grpc.ClientStream
+}
+
+func (x *bankGetTxQueueElementsClient) Recv() (*TxQueueElement, error) {
+	m := new(TxQueueElement)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // BankServer is the server API for Bank service.
 // All implementations should embed UnimplementedBankServer
 // for forward compatibility
 type BankServer interface {
-	GetDefaultCurrency(context.Context, *DefaultCurrencyRequest) (*DefaultCurrencyResponse, error)
+	GetCurrencyInfo(context.Context, *DefaultCurrencyRequest) (*DefaultCurrencyResponse, error)
+	SendTransaction(context.Context, *TxSendAmountRequest) (*TransactionInfo, error)
+	GetTxQueueElements(*RequestTxQueueElements, Bank_GetTxQueueElementsServer) error
 }
 
 // UnimplementedBankServer should be embedded to have forward compatible implementations.
 type UnimplementedBankServer struct {
 }
 
-func (UnimplementedBankServer) GetDefaultCurrency(context.Context, *DefaultCurrencyRequest) (*DefaultCurrencyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDefaultCurrency not implemented")
+func (UnimplementedBankServer) GetCurrencyInfo(context.Context, *DefaultCurrencyRequest) (*DefaultCurrencyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCurrencyInfo not implemented")
+}
+func (UnimplementedBankServer) SendTransaction(context.Context, *TxSendAmountRequest) (*TransactionInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendTransaction not implemented")
+}
+func (UnimplementedBankServer) GetTxQueueElements(*RequestTxQueueElements, Bank_GetTxQueueElementsServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetTxQueueElements not implemented")
 }
 
 // UnsafeBankServer may be embedded to opt out of forward compatibility for this service.
@@ -68,22 +119,61 @@ func RegisterBankServer(s grpc.ServiceRegistrar, srv BankServer) {
 	s.RegisterService(&Bank_ServiceDesc, srv)
 }
 
-func _Bank_GetDefaultCurrency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Bank_GetCurrencyInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DefaultCurrencyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BankServer).GetDefaultCurrency(ctx, in)
+		return srv.(BankServer).GetCurrencyInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/quantos.pkg.v1.Bank/GetDefaultCurrency",
+		FullMethod: "/quantos.pkg.v1.Bank/GetCurrencyInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BankServer).GetDefaultCurrency(ctx, req.(*DefaultCurrencyRequest))
+		return srv.(BankServer).GetCurrencyInfo(ctx, req.(*DefaultCurrencyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _Bank_SendTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TxSendAmountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BankServer).SendTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/quantos.pkg.v1.Bank/SendTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BankServer).SendTransaction(ctx, req.(*TxSendAmountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Bank_GetTxQueueElements_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(RequestTxQueueElements)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BankServer).GetTxQueueElements(m, &bankGetTxQueueElementsServer{stream})
+}
+
+type Bank_GetTxQueueElementsServer interface {
+	Send(*TxQueueElement) error
+	grpc.ServerStream
+}
+
+type bankGetTxQueueElementsServer struct {
+	grpc.ServerStream
+}
+
+func (x *bankGetTxQueueElementsServer) Send(m *TxQueueElement) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 // Bank_ServiceDesc is the grpc.ServiceDesc for Bank service.
@@ -94,10 +184,20 @@ var Bank_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BankServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetDefaultCurrency",
-			Handler:    _Bank_GetDefaultCurrency_Handler,
+			MethodName: "GetCurrencyInfo",
+			Handler:    _Bank_GetCurrencyInfo_Handler,
+		},
+		{
+			MethodName: "SendTransaction",
+			Handler:    _Bank_SendTransaction_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetTxQueueElements",
+			Handler:       _Bank_GetTxQueueElements_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "quantos/pkg/v1/bank.proto",
 }

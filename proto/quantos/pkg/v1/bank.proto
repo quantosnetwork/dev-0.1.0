@@ -5,11 +5,16 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 
 message DefaultCurrencyRequest {
-
+  string from = 1;
+  string name = 2;
+  string symbol = 3;
+  string address = 4;
+  bytes network = 5;
 }
 
 message DefaultCurrencyResponse {
-
+  string to = 1;
+  CurrencyInfo response = 2;
 }
 
 message CurrencyInfo {
@@ -21,6 +26,7 @@ message CurrencyInfo {
   uint64 max_available = 6;
   uint64 value_usd = 7;
   string signature = 8;
+  bytes network = 9;
 }
 
 message BankInfo {
@@ -71,16 +77,76 @@ message Tx {
   string from = 2;
   string to = 3;
   uint64 fees = 4;
-  string TxID = 5;
+  string tx_id = 5;
   repeated string signatures = 6;
   bytes merkle_root = 7;
   string contract_address = 8;
   string notes = 9;
   string ref = 10;
   CurrencyInfo currency = 11;
+  int64 nonce = 12;
+}
+
+enum TxReqType {
+  SendAmount = 0;
+  ContentHash = 1;
+  TxInfo = 2;
+  TxReceipt = 3;
+  Contract = 4;
+  Status = 5;
+}
+
+message TxRequest {
+  string from_address = 1;
+  TxReqType request_type = 2;
+}
+
+message TxSendAmountRequest {
+  TxRequest request = 1;
+  uint64 amount = 2;
+  string to = 3;
+  string signature = 4;
+}
+
+message Fees {
+  int64 tx_size = 2;
+  uint64 total = 3;
+  bool paid = 4;
+}
+
+message TransactionInfo {
+  repeated TxInput inputs = 1;
+  repeated TxOutput outputs = 2;
+  TxStatus tx_status = 3;
+  repeated string validators = 4;
+  repeated string scripts = 5;
+}
+
+message TxInput {
+  TxReqType tx_type = 1;
+  string from = 2;
+  uint64 value = 3;
+  string to = 4;
+  CurrencyInfo currency = 5;
+  bool spent = 6;
+}
+
+message TxOutput {
+  string tx_id = 1;
+  string address = 2;
+  uint64 value = 3;
+  Fees fees = 4;
+  TxInput input = 6;
+}
+
+message RequestTxQueueElements {
+    string from = 1;
+    TxStatus status = 2;
 }
 
 service Bank {
-  rpc GetDefaultCurrency(DefaultCurrencyRequest) returns (DefaultCurrencyResponse);
+  rpc GetCurrencyInfo(DefaultCurrencyRequest) returns (DefaultCurrencyResponse);
+  rpc SendTransaction(TxSendAmountRequest) returns (TransactionInfo);
+  rpc GetTxQueueElements(RequestTxQueueElements) returns (stream TxQueueElement);
 
 }
