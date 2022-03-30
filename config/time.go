@@ -58,6 +58,8 @@ func (t *Time) bgTimeSinceStart() {
 var StartedAt time.Time
 var SinceStarted time.Duration
 
+var CurrentTime = ExactTime.Current
+
 func init() {
 
 	go func() {

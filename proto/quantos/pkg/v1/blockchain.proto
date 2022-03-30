@@ -3,14 +3,18 @@ package quantos.pkg.v1;
 option go_package = "github.com/quantosnetwork/dev-0.1.0/proto/v1";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
-import "quantos/pkg/v1/node.proto";
+
 
 message Block {
-  string ID = 1;
-  string Hash = 2;
-  string PrevHash = 3;
-  google.protobuf.Timestamp timestamp = 4;
+  string block_id = 1;
+  BlockHeader head = 2;
+  Payload payload = 3;
+  uint32 nonce = 4;
   string ValidatorAddr = 5;
+}
+
+message Payload {
+  repeated bytes payload = 1;
 }
 
 message Blockchain {
@@ -25,3 +29,107 @@ message Blockchain {
   repeated Validator validators = 9;
 }
 
+message Node {
+  string id = 1;
+  uint64 stake = 2;
+  string address = 3;
+  google.protobuf.Timestamp last_seen = 4;
+}
+
+message Validator {
+  Node node = 1;
+}
+
+/*
+
+type BlockHeader struct {
+	BlockType         uint64
+	Index             uint64
+	Height            uint64
+	ChainID           string
+	Version           int32
+	Hash              []byte
+	ParentHash        []byte
+	MerkleRoot        []byte
+	TxMerkleRoot      []byte
+	ReceiptMerkleRoot []byte
+	Timestamp         int64
+	Number            int
+	Size              int
+	NumTx             int
+	TxIds             map[string]bool
+	CreationTx        string
+	BlockState        uint32
+}
+
+ */
+
+enum BlockType {
+  DEFAULT = 0;
+  GENESIS = 1;
+  SPECIAL = 2;
+  CHAIN_DATA = 3;
+  NEW_EPOCH = 4;
+}
+
+message BlockHeader {
+  BlockType block_type = 1;
+  uint64 index = 2;
+  uint64 height = 3;
+  string chain_id = 4;
+  string version = 5;
+  string hash = 6;
+  string parent_hash = 7;
+  bytes merkle_root = 8;
+  bytes tx_merkle_root = 9;
+  bytes receipts_merkle_root = 10;
+  google.protobuf.Timestamp timestamp = 11;
+  int32 number = 12;
+  int64 size = 13;
+  int64 num_tx = 14;
+  string creation_tx = 15;
+  repeated BlockStates block_states = 16;
+
+}
+
+message BlockchainSyncRequest {
+  string network_id = 1;
+  string version = 2;
+  string genesis_hash = 3;
+}
+
+message BlockchainSyncResponse {
+  bool error = 1;
+  bool success = 2;
+  repeated Block blocks = 3;
+}
+
+message BlockHeadersRequest {
+  string network_id = 1;
+  string version = 2;
+  string genesis_hash = 3;
+  bool all = 4;
+  uint32 from = 5;
+}
+
+message BlockHeadersResponse {
+  bool error = 1;
+  bool success = 2;
+  repeated BlockHeader block_headers = 3;
+}
+
+enum BlockStates  {
+  NEW = 0;
+  PENDING_VALIDATION = 1;
+  VALID = 2;
+  PENDING_SIGNATURES = 3;
+  SIGNED = 4;
+  FINALIZED = 5;
+  ACCEPT_TX = 6;
+}
+
+
+service BlockchainSync {
+  rpc RequestBlockchainSync(BlockchainSyncRequest) returns (stream BlockchainSyncResponse);
+  rpc RequestBlockHeaders(BlockHeadersRequest) returns (stream BlockHeadersResponse);
+}

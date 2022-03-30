@@ -1,17 +1,6 @@
-package blockchain
+package old
 
-import (
-	"encoding/json"
-	"github.com/barkimedes/go-deepcopy" //nolint:typecheck
-	"github.com/quantosnetwork/dev-0.1.0/core/trie"
-	"github.com/quantosnetwork/dev-0.1.0/core/tx"
-	"github.com/quantosnetwork/dev-0.1.0/hash"
-	//nolint:typecheck
-	"go.uber.org/atomic"
-	"io/ioutil"
-	"strconv"
-)
-
+/*
 type Block interface {
 	Type() uint64
 	Height() uint64
@@ -195,7 +184,9 @@ func (vb *VBlock) WriteAsJson(content *BlockV1) {
 		path = "./genesis.json"
 	} else {
 		path = fmt.Sprintf("./data/block%d.json", vb.blockObject.Head.Index)
-	}*/
+	}
 	toWrite, _ := json.Marshal(content)
 	ioutil.WriteFile("./genesis.json", toWrite, 0600)
 }
+
+*/
