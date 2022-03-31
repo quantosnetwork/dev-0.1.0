@@ -69,7 +69,7 @@ message TxQueue {
 message TxQueueElement {
   int64 nonce = 1;
   Tx transaction = 2;
-  TxStatus status = 3;
+  TxStatus tx_status = 3;
 }
 
 message Tx {
@@ -93,7 +93,7 @@ enum TxReqType {
   TxInfo = 2;
   TxReceipt = 3;
   Contract = 4;
-  Status = 5;
+  TxStatuses = 5;
 }
 
 message TxRequest {

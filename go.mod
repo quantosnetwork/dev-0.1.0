@@ -9,10 +9,14 @@ require (
 	github.com/dgraph-io/badger/v3 v3.2103.2
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
+	github.com/hashicorp/go-hclog v1.2.0
 	github.com/hashicorp/go-memdb v1.3.2
 	github.com/holiman/uint256 v1.2.0
 	github.com/libp2p/go-libp2p v0.18.0
 	github.com/libp2p/go-libp2p-core v0.14.0
+	github.com/libp2p/go-libp2p-kbucket v0.4.7
+	github.com/libp2p/go-libp2p-noise v0.3.0
+	github.com/libp2p/go-libp2p-pubsub v0.6.1
 	github.com/looplab/fsm v0.3.0
 	github.com/mb-14/gomarkov v0.0.0-20210216094942-a5b484cc0243
 	github.com/mr-tron/base58 v1.2.0
@@ -51,6 +55,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/elastic/gosigar v0.12.0 // indirect
+	github.com/fatih/color v1.7.0 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -70,6 +75,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/ipfs/go-cid v0.0.7 // indirect
 	github.com/ipfs/go-ipfs-util v0.0.2 // indirect
+	github.com/ipfs/go-log v1.0.5 // indirect
 	github.com/ipfs/go-log/v2 v2.5.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/jbenet/go-temp-err-catcher v0.1.0 // indirect
@@ -83,9 +89,9 @@ require (
 	github.com/libp2p/go-flow-metrics v0.0.3 // indirect
 	github.com/libp2p/go-libp2p-asn-util v0.1.0 // indirect
 	github.com/libp2p/go-libp2p-blankhost v0.3.0 // indirect
+	github.com/libp2p/go-libp2p-discovery v0.6.0 // indirect
 	github.com/libp2p/go-libp2p-mplex v0.6.0 // indirect
 	github.com/libp2p/go-libp2p-nat v0.1.0 // indirect
-	github.com/libp2p/go-libp2p-noise v0.3.0 // indirect
 	github.com/libp2p/go-libp2p-peerstore v0.6.0 // indirect
 	github.com/libp2p/go-libp2p-pnet v0.2.0 // indirect
 	github.com/libp2p/go-libp2p-quic-transport v0.16.1 // indirect
@@ -111,6 +117,7 @@ require (
 	github.com/marten-seemann/qtls-go1-17 v0.1.0 // indirect
 	github.com/marten-seemann/qtls-go1-18 v0.1.0-beta.1 // indirect
 	github.com/marten-seemann/tcp v0.0.0-20210406111302-dfbc87cc63fd // indirect
+	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/miekg/dns v1.1.43 // indirect
@@ -130,6 +137,7 @@ require (
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/onsi/ginkgo v1.16.4 // indirect
 	github.com/opencontainers/runtime-spec v1.0.2 // indirect
+	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -145,6 +153,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.3 // indirect
 	github.com/whyrusleeping/multiaddr-filter v0.0.0-20160516205228-e903e4adabd7 // indirect
+	github.com/whyrusleeping/timecache v0.0.0-20160911033111-cfcb2f1abfee // indirect
 	go.dedis.ch/fixbuf v1.0.3 // indirect
 	go.opencensus.io v0.22.5 // indirect
 	go.uber.org/multierr v1.7.0 // indirect

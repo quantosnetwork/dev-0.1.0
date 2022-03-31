@@ -1,0 +1,31 @@
+syntax="proto3";
+package quantos.pkg.v1;
+option go_package = "github.com/quantosnetwork/dev-0.1.0/proto/v1";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+
+service Identity {
+    rpc Hello(Status) returns (Status);
+
+    rpc Bye(ByeMsg) returns (google.protobuf.Empty);
+}
+
+message ByeMsg {
+    string reason = 1;
+}
+
+message Status {
+    map<string, string> metadata = 1;
+
+    repeated Key keys = 2;
+
+    int64 chain = 3;
+
+    string genesis = 4;
+
+    message Key {
+        string signature = 1;
+        string message = 2;
+    }
+}
