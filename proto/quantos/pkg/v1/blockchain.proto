@@ -8,7 +8,6 @@ import "google/protobuf/any.proto";
 message Block {
   string block_id = 1;
   BlockHeader head = 2;
-  Payload payload = 3;
   uint32 nonce = 4;
   string ValidatorAddr = 5;
 }

@@ -8,10 +8,12 @@ import (
 	"encoding/json"
 	"github.com/quantosnetwork/dev-0.1.0/core/account"
 	"github.com/quantosnetwork/dev-0.1.0/crypto/anon"
+	"github.com/quantosnetwork/dev-0.1.0/fs"
 	"github.com/quantosnetwork/dev-0.1.0/hash"
 	"github.com/quantosnetwork/dev-0.1.0/keygen/p2p"
-	pb "github.com/quantosnetwork/dev-0.1.0/proto/gen/proto/quantos/pkg/v1"
+	"github.com/quantosnetwork/dev-0.1.0/logger"
 	"io/ioutil"
+	pb "proto/quantos/pkg/v1"
 )
 
 var GenesisID = hex.EncodeToString(hash.NewBlake3Hash([]byte("genesis_kp")))
@@ -28,7 +30,7 @@ type GenesisBlock struct {
 	CreationDate      int64
 	Epoch             uint32
 	GenesisValidators []*pb.Validator
-	block             *pb.Block
+	Block             *pb.Block
 }
 
 type GenesisContext struct {
@@ -43,10 +45,27 @@ type GenKeys struct {
 
 type GKey string
 
-func NewLiveGenesisBlock(b *pb.Blockchain) {
+func NewLiveGenesisBlock() *GenesisBlock {
 	g := &GenesisBlock{
 		ctx:       context.Background(),
 		NetworkID: LIVE_NETWORK,
+		Account:   NewGenesisAccount(),
+		Epoch:     0,
+		Block:     new(pb.Block),
+	}
+	kctx := &GenesisContext{}
+
+	key, keyp := g.NewKyberKeys()
+	keys := &GenKeys{keyp, key}
+	kctx.keys = keys
+	g.kctx = context.WithValue(g.ctx, GKey("genesis_context"), kctx)
+	return g
+}
+
+func NewTestNetGenesisBlock(b *pb.Blockchain) {
+	g := &GenesisBlock{
+		ctx:       context.Background(),
+		NetworkID: TEST_NETWORK,
 		Account:   NewGenesisAccount(),
 		Epoch:     0,
 	}
@@ -56,10 +75,6 @@ func NewLiveGenesisBlock(b *pb.Blockchain) {
 	keys := &GenKeys{keyp, key}
 	kctx.keys = keys
 	g.kctx = context.WithValue(g.ctx, GKey("genesis_context"), kctx)
-}
-
-func NewTestNetGenesisBlock(b *pb.Blockchain) {
-
 }
 
 func NewCustomGenesisBlock(b *pb.Blockchain) {
@@ -81,7 +96,7 @@ func (g *GenesisBlock) createGenesisHash() []byte {
 	buf := make([][]byte, 34)
 	buf[0] = []byte{g.NetworkID}
 	buf[1] = g.Account.Bytes()
-	buf[2], _ = g.block.GetHead().Timestamp.AsTime().MarshalBinary()
+	buf[2], _ = g.Block.GetHead().Timestamp.AsTime().MarshalBinary()
 	buf[3] = sig
 	j := bytes.Join(buf, nil)
 	return hash.NewKeyedBlake3Hash(j, sig)
@@ -144,4 +159,31 @@ type genCtxFile struct {
 	encData []byte
 	Pub     string
 	Priv    string
+}
+
+func CheckIfGenesisFileExists(networkID byte) bool {
+	qfs := fs.NewFileSystem()
+	exists, err := qfs.Exists("./genesis-" + string(networkID) + ".json")
+	if err != nil {
+		return false
+	}
+	if !exists {
+		return false
+	}
+	return true
+}
+
+func WriteGenesisBlock(networkID byte, genesis *GenesisBlock) error {
+	qfs := fs.NewFileSystem()
+	g, err := json.Marshal(genesis)
+	if err != nil {
+		logger.Logger.Sugar().Fatal("an error happened writing genesis block", err)
+		return err
+	}
+	err = qfs.WriteFile("./genesis"+string(networkID)+".json", g, 0600)
+	if err != nil {
+		return err
+	}
+	return genesis.SaveContext()
+
 }

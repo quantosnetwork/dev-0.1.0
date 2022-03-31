@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/looplab/fsm"
+	"github.com/quantosnetwork/dev-0.1.0/core/blockchain"
 	"github.com/quantosnetwork/dev-0.1.0/logger"
 	"log"
 )
@@ -17,14 +18,18 @@ const (
 	STATE_INITIALIZED
 	STATE_ERROR
 	STATE_READY
+	STATE_CREATING_GENESIS
+	STATE_GENESIS_DONE
 )
 
 var GS map[GlobalState]string = map[GlobalState]string{
-	STATE_IDLE:         "idle",
-	STATE_INITIALIZING: "initializing",
-	STATE_INITIALIZED:  "initialized",
-	STATE_ERROR:        "error",
-	STATE_READY:        "ready",
+	STATE_IDLE:             "idle",
+	STATE_INITIALIZING:     "initializing",
+	STATE_INITIALIZED:      "initialized",
+	STATE_ERROR:            "error",
+	STATE_READY:            "ready",
+	STATE_CREATING_GENESIS: "create_genesis",
+	STATE_GENESIS_DONE:     "genesis_done",
 }
 
 type GlobalStateMachine struct {
@@ -37,6 +42,9 @@ func NewGlobalStateMachine() *GlobalStateMachine {
 		fsm.Events{
 			{Name: "initializing", Src: []string{GS[STATE_INITIALIZING]}, Dst: GS[STATE_INITIALIZED]},
 			{Name: "initialized", Src: []string{GS[STATE_INITIALIZING]}, Dst: GS[STATE_INITIALIZED]},
+			{Name: "create_genesis", Src: []string{GS[STATE_INITIALIZED]}, Dst: GS[STATE_CREATING_GENESIS]},
+			{Name: "genesis_done", Src: []string{GS[STATE_CREATING_GENESIS]}, Dst: GS[STATE_GENESIS_DONE]},
+			{Name: "ready", Src: []string{GS[STATE_GENESIS_DONE]}, Dst: GS[STATE_READY]},
 		},
 		fsm.Callbacks{
 			GS[STATE_INITIALIZING]: func(e *fsm.Event) {
@@ -51,8 +59,22 @@ func NewGlobalStateMachine() *GlobalStateMachine {
 				_, ok := e.FSM.Metadata("error")
 				if !ok {
 					e.FSM.SetMetadata("initialized", true)
+					e.FSM.SetMetadata("creating_genesis", true)
 					log.Println("Quantos is successfully initialized")
 				}
+			},
+			GS[STATE_CREATING_GENESIS]: func(e *fsm.Event) {
+				log.Println("creating genesis block....")
+				g := blockchain.NewLiveGenesisBlock()
+				err := blockchain.WriteGenesisBlock(g.NetworkID, g)
+				if err != nil {
+					return
+				}
+				e.FSM.SetMetadata("genesis", g)
+
+			},
+			GS[STATE_GENESIS_DONE]: func(e *fsm.Event) {
+				log.Println("genesis block successfully created")
 			},
 		})
 	return &GlobalStateMachine{newFSM}
