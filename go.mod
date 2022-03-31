@@ -7,6 +7,7 @@ require (
 	github.com/cloudflare/circl v1.1.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dgraph-io/badger/v3 v3.2103.2
+	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/go-hclog v1.2.0
@@ -21,6 +22,7 @@ require (
 	github.com/mb-14/gomarkov v0.0.0-20210216094942-a5b484cc0243
 	github.com/mr-tron/base58 v1.2.0
 	github.com/multiformats/go-multiaddr v0.5.0
+	github.com/prometheus/client_golang v1.11.0
 	github.com/sony/gobreaker v0.5.0
 	github.com/spf13/afero v1.1.2
 	github.com/spf13/cobra v0.0.5
@@ -142,7 +144,6 @@ require (
 	github.com/pelletier/go-toml v1.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.11.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.30.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect

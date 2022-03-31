@@ -49,7 +49,7 @@ type Config struct {
 	MaxOutboundPeers int64
 	Chain            *blockchain.Blockchain
 	NetworkID        int64
-	// Metrics *Metrics
+	Metrics          *Metrics
 	// SecretVault *Vault
 }
 
@@ -68,7 +68,7 @@ type Server struct {
 	closeCh          chan struct{}
 	host             host.Host
 	addrs            []multiaddr.Multiaddr
-	peers            map[peer.ID]*Peers
+	peers            map[peer.ID]*Peer
 	peersLock        sync.Mutex
 	dialQueue        *dialQueue
 	identity         *identity
@@ -80,6 +80,7 @@ type Server struct {
 	joinWatchersLock sync.Mutex
 	emitterPeerEvent event.Emitter
 	inboundConnCount int64
+	metrics          *Metrics
 }
 
 type Peer struct {
@@ -179,7 +180,8 @@ func (s *Server) Start() error {
 	bootnodes := []*peer.AddrInfo{}
 
 	for _, raw := range s.config.Chain.Bootnodes {
-		node, err := StringToAddrInfo(raw)
+
+		node, err := StringToAddrInfo(raw.(string))
 		if err != nil {
 			return fmt.Errorf("failed to parse bootnode %s: %w", raw, err)
 		}
@@ -224,7 +226,8 @@ func (s *Server) checkPeerConnections() {
 			return
 		}
 
-		if s.numPeers() < MinimumPeerConnections {
+		MinPeerConnections := int64(1)
+		if s.numPeers() < MinPeerConnections {
 
 			randomNode := s.getRandomBootNode()
 			s.addToDialQueue(randomNode, PriorityRandDial)

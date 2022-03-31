@@ -35,7 +35,7 @@ type Blockchain struct {
 	ChainStates  map[string]*fsm.FSM
 	BlockVals    *BlockValidation
 	*pb.Blockchain
-	Bootnodes interface{}
+	Bootnodes []interface{}
 }
 
 func (b *Blockchain) GenerateID() {
