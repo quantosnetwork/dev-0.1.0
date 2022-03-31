@@ -3,24 +3,25 @@ package blockchain
 import (
 	"encoding/json"
 	"github.com/quantosnetwork/dev-0.1.0/factory"
+	pb "github.com/quantosnetwork/dev-0.1.0/proto/gen/proto/quantos/pkg/v1"
 )
 
 type BlockFactory interface {
 	CreateEmpty() interface{}
-	CreateGenesis() *BlockV1
+	CreateGenesis() *GenesisBlock
 	Set(key string, value interface{})
 	Validate() bool
-	Build() *Block
+	Build() *pb.Block
 }
 
 type blockFactory struct {
-	block *BlockV1
+	block *pb.Block
 	bmap  map[string]interface{}
 }
 
-func (b blockFactory) CreateGenesis() *BlockV1 {
+func (b blockFactory) CreateGenesis() *GenesisBlock {
 	//TODO implement me
-	return b.CreateEmpty().(*BlockV1)
+	return b.CreateEmpty().(*GenesisBlock)
 }
 
 func (b blockFactory) CreateEmpty() interface{} {
@@ -37,14 +38,14 @@ func (b blockFactory) Validate() bool {
 	return true
 }
 
-func (b blockFactory) Build() *Block {
+func (b blockFactory) Build() *pb.Block {
 	mapToBytes, _ := json.Marshal(b.bmap)
 	bb, _ := factory.GetFactory().BuildFromBytes(mapToBytes, b.block)
-	return bb.(*Block)
+	return bb.(*pb.Block)
 }
 
 func GetBlockFactory(bf BlockFactory) BlockFactory {
 	eb := bf.CreateEmpty()
-	return blockFactory{block: eb.(*BlockV1)}
+	return blockFactory{block: eb.(*pb.Block)}
 
 }

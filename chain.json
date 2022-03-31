@@ -1,0 +1,51 @@
+{
+  "chain_id": "07378537-7dc4-4a43-829d-cd3960f1c6cf",
+  "version": "1",
+  "genesis_hash": "0xeb53950133c5ec8b113dbfaea2274a2e749755edaea28351594c62ee139e1be5",
+  "merkle_root": "0x26c91a1108abb8fda111bd6ce033bdfba0431984a1e149d0ba0f3a7a3b75f874",
+  "blocks": [
+    {
+      "block_id": "Qx00f023ed0cb1de3d24f5b43ecb634312e283",
+      "head": {
+        "block_type": 1,
+        "height": 1,
+        "chain_id": "07378537-7dc4-4a43-829d-cd3960f1c6cf",
+        "version": "1",
+        "hash": "0xeb53950133c5ec8b113dbfaea2274a2e749755edaea28351594c62ee139e1be5",
+        "parent_hash": "0xec9fadea8e2f1358be752941554d108fb6d135366d5fcddf4012c12ed05a4c1",
+        "merkle_root": "JskaEQiruP2hEb1s4DO9+6BDGYSh4UnQug86ejt1+HQ=",
+        "timestamp": {
+          "seconds": 1648744126,
+          "nanos": 296181000
+        },
+        "block_states": [
+          0,
+          1,
+          3
+        ]
+      }
+    }
+  ],
+  "num_blocks": 1,
+  "blockchain_head": {
+    "block_id": "Qx00f023ed0cb1de3d24f5b43ecb634312e283",
+    "head": {
+      "block_type": 1,
+      "height": 1,
+      "chain_id": "07378537-7dc4-4a43-829d-cd3960f1c6cf",
+      "version": "1",
+      "hash": "0xeb53950133c5ec8b113dbfaea2274a2e749755edaea28351594c62ee139e1be5",
+      "parent_hash": "0xec9fadea8e2f1358be752941554d108fb6d135366d5fcddf4012c12ed05a4c1",
+      "merkle_root": "JskaEQiruP2hEb1s4DO9+6BDGYSh4UnQug86ejt1+HQ=",
+      "timestamp": {
+        "seconds": 1648744126,
+        "nanos": 296181000
+      },
+      "block_states": [
+        0,
+        1,
+        3
+      ]
+    }
+  }
+}

@@ -4,16 +4,20 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/holiman/uint256"
 	"github.com/looplab/fsm"
 	"github.com/quantosnetwork/dev-0.1.0/core/trie"
 	"github.com/quantosnetwork/dev-0.1.0/hash"
+	pb "github.com/quantosnetwork/dev-0.1.0/proto/gen/proto/quantos/pkg/v1"
 	"github.com/quantosnetwork/dev-0.1.0/store"
 	"github.com/quantosnetwork/dev-0.1.0/version"
+	"io/ioutil"
 	"lukechampine.com/frand"
+	"math/big"
 	"math/rand"
-	pb "proto/quantos/pkg/v1"
 	"strings"
 	"sync"
 	"time"
@@ -22,7 +26,6 @@ import (
 const STAKE_COST_PER_BLOCK = 10
 
 type Blockchain struct {
-	pb.Blockchain
 	SemVer       version.SemVer
 	GenesisBlock []byte
 	blocks       map[string]*pb.Block
@@ -31,6 +34,7 @@ type Blockchain struct {
 	ctx          context.Context
 	ChainStates  map[string]*fsm.FSM
 	BlockVals    *BlockValidation
+	*pb.Blockchain
 }
 
 func (b *Blockchain) GenerateID() {
@@ -60,18 +64,32 @@ func (b *Blockchain) InitializeStateMachines(machineNames []string, events map[s
 	}
 }
 
-func NewBlockchain() *Blockchain {
+func NewBlockchain(networkId byte) *pb.Blockchain {
 	var mu sync.Mutex
 	mu.Lock()
 	defer mu.Unlock()
-	b := new(Blockchain)
-	b.ctx = context.Background()
-	b.CreateOrLoadGenesis()
+	b := new(pb.Blockchain)
+
+	genesis := NewLiveGenesisBlock()
+	b.ChainId = genesis.Block.GetHead().GetChainId()
+	b.BlockchainHead = genesis.Block
+	b.GenesisHash = genesis.Block.GetHead().GetHash()
+	b.ChainId = b.GetBlockchainHead().GetHead().ChainId
+	b.Version = "1"
+	b.NumBlocks = 1
+
+	b.Blocks = append(b.Blocks, genesis.Block)
+
+	bb := big.NewInt(0).SetBytes(b.BlockchainHead.GetHead().MerkleRoot)
+	bmk, _ := uint256.FromBig(bb)
+	b.MerkleRoot = bmk.Hex()
+	bc, _ := json.Marshal(b)
+	ioutil.WriteFile("./chain.json", bc, 0600)
 	return b
 }
 
 func init() {
-	NewBlockchain()
+	NewBlockchain(LIVE_NETWORK)
 }
 
 func (b *Blockchain) GenerateNewBlock(validator *pb.Validator) ([]*pb.Block, *pb.Block, error) {
@@ -92,13 +110,12 @@ func (b *Blockchain) GenerateNewBlock(validator *pb.Validator) ([]*pb.Block, *pb
 	nbh.Height = b.GetBlockchainHead().GetHead().GetHeight() + 1
 	nbh.Index = b.GetBlockchainHead().GetHead().GetIndex() + 1
 
-	nbh.MerkleRoot = b._calculateMerkleTree()
+	nbh.MerkleRoot = b.calculateMerkleTree()
 	nbh.Number = int32(b._genRandomBlockNumber())
 	nbh.Size = int64(0)
 	nbh.NumTx = int64(0)
 	nb.Head = nbh
 	nb.Nonce = b._genRandomBlockNumber()
-	nb.Payload = &pb.Payload{}
 	nb.ValidatorAddr = validator.String()
 	bid := NewBlockHash(nb)
 	nb.BlockId = bid
@@ -119,9 +136,12 @@ func (b *Blockchain) GenerateNewBlock(validator *pb.Validator) ([]*pb.Block, *pb
 }
 
 func NewBlockHash(nb *pb.Block) string {
-	toHash := []byte(nb.GetHead().GetTimestamp().String() + nb.GetHead().ParentHash + nb.GetValidatorAddr())
+	toHash := []byte(nb.GetHead().GetTimestamp().String() + nb.GetHead().ParentHash + nb.
+		GetValidatorAddr())
 	h := hash.NewBlake3Hash(toHash)
-	return hex.EncodeToString(h)
+	b := big.NewInt(0).SetBytes(h)
+	u, _ := uint256.FromBig(b)
+	return u.Hex()
 }
 
 type BlockValidation struct {
@@ -183,7 +203,7 @@ func VerifyHash(currentHash string, prevHash string, ts string, valaddr string) 
 	return errors.New("invalid hash")
 }
 
-func (b *Blockchain) _calculateMerkleTree() []byte {
+func (b *Blockchain) calculateMerkleTree() []byte {
 
 	merkleRootData := b.Blocks
 	blockmerkledata := make([][]byte, len(merkleRootData))

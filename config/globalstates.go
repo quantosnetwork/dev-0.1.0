@@ -91,7 +91,7 @@ func init() {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-
+		InitState.Event("create_genesis")
 		PrintState(GetCurrentGlobalState())
 	}
 }

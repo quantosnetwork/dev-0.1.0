@@ -9,8 +9,10 @@ import (
 	"github.com/cloudflare/circl/sign/ed25519"
 	"io"
 	"io/ioutil"
+
 	"lukechampine.com/frand"
 	"os"
+	"time"
 )
 
 type Keys struct {
@@ -53,7 +55,8 @@ func GenerateEd25519(id string, seed []byte) ed25519.PrivateKey {
 }
 
 func randSeed() []byte {
-	b := frand.Entropy256()
+	b := make([]byte, 32)
+	frand.Read(b)
 	return b[:]
 }
 
@@ -70,6 +73,8 @@ func loadPrivateKey(accountID string, pubKey ed25519.PublicKey) (ed25519.Private
 		if os.IsNotExist(err) {
 			s := randSeed()
 			sk = GenerateEd25519(accountID, s)
+			return sk, nil
+		} else {
 
 		}
 	}
@@ -77,10 +82,16 @@ func loadPrivateKey(accountID string, pubKey ed25519.PublicKey) (ed25519.Private
 		if os.IsNotExist(err) {
 			s := randSeed()
 			sk = GenerateEd25519(accountID, s)
+			return sk, nil
+
+		} else {
 
 		}
 	}
 
+	s = make([]byte, 32)
+	frand.NewSource().Seed(time.Now().UnixNano())
+	frand.Read(s)
 	sk2 := ed25519.NewKeyFromSeed(s)
 	sk2b, _ := sk2.MarshalBinary()
 
@@ -89,9 +100,8 @@ func loadPrivateKey(accountID string, pubKey ed25519.PublicKey) (ed25519.Private
 		pub2 := sk2.Public()
 		if pubKey.Equal(pub2) {
 			return sk2, nil
-		} else {
-			return nil, errors.New("private key is not valid")
 		}
+		return sk2, nil
 	}
 	return nil, errors.New("private key is not valid")
 
@@ -110,10 +120,10 @@ type LoadedKeys struct {
 }
 
 func (k Keys) GetLoadedKeys(accID string) *LoadedKeys {
-	sk, err := loadPrivateKey(accID, k.PublicKey)
-	if err != nil {
-		panic(err)
-	}
+	s := make([]byte, 32)
+	frand.NewSource().Seed(time.Now().UnixNano())
+	frand.Read(s)
+	sk := ed25519.NewKeyFromSeed(s)
 	return &LoadedKeys{
 		Priv:       sk,
 		Pub:        sk.Public().(ed25519.PublicKey),

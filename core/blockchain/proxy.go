@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/quantosnetwork/dev-0.1.0/core/account"
+	pb "github.com/quantosnetwork/dev-0.1.0/proto/gen/proto/quantos/pkg/v1"
 	"sync"
 )
 
@@ -11,12 +12,12 @@ import (
 type BlockProxy interface {
 	Initialize(chainID string, callerAccount account.Account) error
 	IsAllowed(aclType int, callerAccount account.Account) bool
-	CreateBlankBLock() *BlockV1
-	CopyBlock(b *BlockV1) *BlockV1
-	FinalizeBlock(b *BlockV1) error
-	GetRawBlock(height uint32) (*BlockV1, error)
-	AddBlockToValidationQueue(b *BlockV1)
-	ValidateAndSign(b *BlockV1) error
+	CreateBlankBLock() *pb.Block
+	CopyBlock(b *pb.Block) *pb.Block
+	FinalizeBlock(b *pb.Block) error
+	GetRawBlock(height uint32) (*pb.Block, error)
+	AddBlockToValidationQueue(b *pb.Block)
+	ValidateAndSign(b *pb.Block) error
 }
 
 type BlockProxyQueries uint32

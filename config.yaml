@@ -1,0 +1,59 @@
+chain:
+  info:
+    name: Quantos Blockchain
+    version: 0.1.0
+    repo: https://github.com/quantosnetwork
+  networkid: 175
+  genesis:
+    parent_hash: 0xec9fadea8e2f1358be752941554d108fb6d135366d5fcddf4012c12ed05a4c1
+    file: genesis-175.json
+    keyfile: .genctx
+  block_reward: 1000
+  block_time_sec: 5
+
+grpc:
+  default:
+    host: 0.0.0.0
+    port: 55655
+
+p2p:
+  bootstrap:
+    - tcp://address
+
+db:
+  path: ./data
+
+bank:
+  root_account: 0xec9fadea8e2f1358be752941554d108fb6d135366d5fcddf4012c12ed05a4c1
+  currencies:
+    - currency:
+        purpose: coin
+        info:
+          name: QBit
+          symbol: XBQ
+          max_coins: 1000000000
+          decimals: 16
+          fee: 0.01
+          initial_value_usd: 0.10
+          genesis_mint: 50000000
+    - currency:
+        purpose: staking
+        info:
+          name: QSteak
+          symbol: XBQS
+          max_coins: 10000000
+          decimals: 16
+          fee: 0
+          initial_value_usd: 0.10
+          genesis_mint: 5000000
+
+consensus:
+  params:
+    currency: XBQS
+    min_validators: 3
+    max_validators: 50
+    min_stake: 1000
+    max_rounds: 5
+    min_rounds: 1
+    genesis_validators: validators.json
+  contract: contracts/consensus.q

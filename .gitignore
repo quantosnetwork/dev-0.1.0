@@ -17,3 +17,11 @@ tmp/errors
 tmp/errors
 quantos.puml
 polygon.puml
+.genctx
+chain.json
+genesisdata.json
+tmp
+bin
+circuit
+coverage.out
+.genctx

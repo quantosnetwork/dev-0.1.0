@@ -54,18 +54,18 @@ func (mt MTree) GetFilePath() string {
 
 func NewMerkleTree(chainID, chainVersion string, data ...[]byte) *MTree {
 
-	bufData := make([][]byte, len(data)-1)
+	bufData := make([][]byte, len(data)+1)
 	for i, d := range data {
 		bufData[i] = d
 	}
-	var mt MTree
+	mt := &MTree{}
 	mt.ChainID = chainID
 	mt.ChainVersion = chainVersion
 	mt.NewMerkleTree(bufData)
 
 	Proofs := map[int]*Proof{}
 	mt.Proofs = Proofs
-	WriteTree(mt)
-	return &mt
+	//WriteTree(mt)
+	return mt
 
 }

@@ -4,9 +4,11 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/cloudflare/circl/sign/ed25519"
-	"github.com/quantosnetwork/dev-0.1.0/common"
+	"github.com/holiman/uint256"
+	"golang.org/x/crypto/ed25519"
 	"log"
+	"math/big"
+	"strings"
 )
 
 type IAccount interface {
@@ -70,27 +72,31 @@ func NewAccountManager() IAccount {
 
 func NewKeyPair(id string) (ed25519.PrivateKey, ed25519.PublicKey) {
 	priv, pub := initializeKeyPair(id)
-	return priv, pub
+	return ed25519.PrivateKey(priv), ed25519.PublicKey(pub)
 }
 
 func NewAccountFromKeys(id, ownerKey, activeKey string) *Account {
 	am := NewAccountManager()
 	pub, priv := NewKeyPair(id)
-	pb, _ := priv.MarshalBinary()
-	pubb, _ := pub.MarshalBinary()
+	pb := priv
+	pubb := pub
 	a := am.NewFromKeys(id, hex.EncodeToString(pb), hex.EncodeToString(pubb))
 	return a
 }
 
 func (a *Account) GetAddress() string {
+	bb, _ := hex.DecodeString(a.ACL["active"].Items[0].ID)
+	b := new(big.Int).SetBytes(bb)
+	u, _ := uint256.FromBig(b)
 
-	return common.EncodeBase58([]byte(a.ACL["active"].Items[0].ID))
+	return strings.Replace(u.Hex(), "0x", "Qx00", -1)
 
 }
 
 func (a *Account) VerifyAddress(addr string) error {
-	decoded := common.DecodeBase58(addr)
-	hexString := hex.EncodeToString(decoded)
+	decoded, _ := uint256.FromHex(addr)
+	hexBytes := decoded.Bytes()
+	hexString := hex.EncodeToString(hexBytes)
 	if hexString == a.ACL["active"].Items[0].ID {
 		return nil
 	}
@@ -104,7 +110,7 @@ func (a *Account) Dump() {
 }
 
 func (a *Account) String() string {
-	return "QBX" + "://" + a.GetAddress()
+	return strings.Replace(a.GetAddress()[:38], "0x", "Qx00", -1)
 }
 
 func (a *Account) Bytes() []byte {
