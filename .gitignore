@@ -25,3 +25,6 @@ bin
 circuit
 coverage.out
 .genctx
+.idea/inspectionProfiles/Project_Default.xml
+modules/sdk/.idea/workspace.xml
+tmp/logs
