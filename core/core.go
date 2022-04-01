@@ -80,10 +80,14 @@ func (c *chain) BootNodes() []string {
 func (c *chain) InitializeNewBlockchain(networkName string) Chain {
 
 	ch := &chain{
+		name:      "Quantos",
 		NetworkId: NetStrToId[networkName],
 		Version:   Version.String(),
 		genesis:   c.InitializeGenesis(),
 	}
+	ch.params["chainId"] = NetStrToId
+	ch.params["vm"] = "qvm"
+	ch.params["consensus"] = []string{"qdpos", "pod"}
 
 	return ch
 
@@ -93,4 +97,8 @@ func (c *chain) InitializeGenesis() GenesisBlock {
 	genesis := &blockchain.GenesisBlock{}
 
 	return genesis
+}
+
+type ChainImporter struct {
+	ChainGetter
 }
