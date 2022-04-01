@@ -86,20 +86,20 @@ type badgerLog struct {
 }
 
 func (b badgerLog) Errorf(s string, i ...interface{}) {
-	log.Fatalf(s, i)
+	log.Fatalf(s, i...)
 }
 
 func (b badgerLog) Warningf(s string, args ...interface{}) {
-	log.Printf(s, args)
+	log.Printf(s, args...)
 }
 
 func (b badgerLog) Infof(s string, i ...interface{}) {
-	log.Printf(s, i)
+	log.Printf(s, i...)
 
 }
 
 func (b badgerLog) Debugf(s string, i ...interface{}) {
-	log.Printf(s, i)
+	log.Printf(s, i...)
 }
 
 func (r *Repo) Create() (err error) {
