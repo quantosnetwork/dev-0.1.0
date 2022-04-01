@@ -7,6 +7,7 @@ require (
 	github.com/cloudflare/circl v1.1.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dgraph-io/badger/v3 v3.2103.2
+	github.com/go-git/go-billy/v5 v5.3.1
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0

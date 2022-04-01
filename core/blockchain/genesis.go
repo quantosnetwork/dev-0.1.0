@@ -40,6 +40,61 @@ type GenesisBlock struct {
 	Block             *pb.Block
 }
 
+func (g *GenesisBlock) Config() *any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Nonce() [8]byte {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Timestamp() timestamppb.Timestamp {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Pb() *pb.Block {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Raw() []byte {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) DNAProof() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Hash() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Hex() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) String() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Coinbase() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *GenesisBlock) Metadata() map[string]any {
+	//TODO implement me
+	panic("implement me")
+}
+
 type GenesisContext struct {
 	kv   map[string]any
 	keys *GenKeys

@@ -89,10 +89,6 @@ func NewBlockchain(networkId byte) *pb.Blockchain {
 	return b
 }
 
-func init() {
-	NewBlockchain(LIVE_NETWORK)
-}
-
 func (b *Blockchain) GenerateNewBlock(validator *pb.Validator) ([]*pb.Block, *pb.Block, error) {
 	if err := b.ValidateBlockchain(); err != nil {
 		val := validator.GetNode()

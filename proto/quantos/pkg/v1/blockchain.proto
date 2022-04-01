@@ -17,8 +17,9 @@ message Payload {
 }
 
 message Blockchain {
-  string chain_id = 1;
-  string version = 2;
+  uint32 network_id =1;
+  string chain_id = 2;
+  string version = 10;
   string genesis_hash = 3;
   string merkle_root = 4;
   repeated Block blocks = 5;
