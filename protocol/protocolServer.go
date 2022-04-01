@@ -6,5 +6,4 @@ import (
 
 type ProtocolServer struct {
 	logger hclog.Logger
-	config *Config
 }
