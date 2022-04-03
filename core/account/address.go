@@ -15,6 +15,8 @@ import (
 	"io/ioutil"
 	"log"
 	"lukechampine.com/frand"
+	"os"
+	"path"
 )
 
 type IAddress interface {
@@ -127,7 +129,9 @@ func (a *address) WriteAndLock(key []byte) error {
 		Chksum:        crc32.ChecksumIEEE(e),
 	}
 	afw, _ := json.Marshal(af)
-	err = ioutil.WriteFile("./data/.keys/"+hex.EncodeToString(a.PubBytes)+".wal", afw, 0600)
+	dir, _ := os.Getwd()
+	pat := path.Join(dir, "./../")
+	err = ioutil.WriteFile(pat+"/data/.keys/"+hex.EncodeToString(a.PubBytes)+".wal", afw, 0600)
 	if err != nil {
 
 		return err
@@ -149,7 +153,9 @@ type DecryptedAddressFormat struct {
 }
 
 func GetAddressFromStorage(pub string, key string) (*DecryptedAddressFormat, error) {
-	b, err := ioutil.ReadFile("./data/.keys/" + pub + ".wal")
+	dir, _ := os.Getwd()
+	pat := path.Join(dir, "./../")
+	b, err := ioutil.ReadFile(pat + "/data/.keys/" + pub + ".wal")
 	if err != nil {
 		return nil, errors.New("invalid address, not found")
 	}

@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"log"
+	"os"
+	"path"
 	"testing"
 )
 
@@ -23,12 +25,15 @@ type AccountAddressTestSuite struct {
 func (suite *AccountAddressTestSuite) SetupTest() {
 	suite.Key = "qwerty1234"
 	suite.NetID = 0x00
-	suite.Path = "./data/.keys/"
+	dir2, _ := os.Getwd()
+	pat := path.Join(dir2, "./../")
+	suite.Path = pat + "/data/.keys/"
 	suite.Name = "AccountAddressTestSuite"
 }
 
 func (suite *AccountAddressTestSuite) TestAccountAddress() {
 	var err error
+
 	suite.Address, err = account.CreateNewAddress(suite.NetID, suite.Key)
 	if assert.NoError(suite.T(), err, "address generated ok!") { //nolint:typecheck
 		log.Printf(color.Blue+"address was generated! current address: %s \n", suite.Address)
@@ -55,7 +60,7 @@ func (suite *AccountAddressTestSuite) TestAccountAddressDecrypt() {
 			suite.Fail(color.Red + "both addresses are not equal! wrong decryption") //nolint:typecheck
 		}
 	} else {
-		suite.Fail(color.Red + "an error occured while decrypting, wrong key?") //nolint:typecheck
+		suite.Fail(color.Red+"an error occured while decrypting, wrong key?", err) //nolint:typecheck
 	}
 
 }

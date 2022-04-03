@@ -34,39 +34,3 @@ type Address interface {
 	FromAccount(accId string) *Address
 	Derive() *Address
 }
-
-type ReadRequest struct {
-	filename  string
-	encoding  string
-	encrypted bool
-	key       string
-	decrypted []byte
-	
-	toStruct bool
-	Struc    *any
-}
-
-type WriteRequest struct {
-	filename   string
-	encoding   string
-	encrypted  bool
-	fromStruct bool
-	Struc      *any
-	key        string
-}
-
-type ReadOption func(r *ReadRequest)
-type WriteOption func(w *WriteRequest)
-
-type FsUtil interface {
-	Read(opts ...ReadOption) []byte
-	Write(opts ...WriteOption) error
-}
-
-func DefaultReadOptions() *ReadRequest {
-	return &ReadRequest{
-		encrypted: false,
-		encoding:  "json",
-		key:       len(""),
-	}
-}

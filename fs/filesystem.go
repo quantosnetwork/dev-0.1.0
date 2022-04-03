@@ -73,8 +73,6 @@ func (f Filesystem) LoadToMemory(path string) (*memfs.Memory, error) {
 
 func (f Filesystem) SyncToDisk(onDiskPath string, data *memfs.Memory) error {
 	f.io = osfs.New(".")
-	//exists := f.FileExists(onDiskPath)
-	//if !exists {
 
 	dst, err := f.io.Create(onDiskPath)
 	if err != nil {
@@ -94,8 +92,6 @@ func (f Filesystem) SyncToDisk(onDiskPath string, data *memfs.Memory) error {
 	if err := src.Close(); err != nil {
 		return err
 	}
-
-	//}
 
 	return nil
 

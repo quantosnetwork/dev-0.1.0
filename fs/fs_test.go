@@ -16,7 +16,6 @@ type MockData struct {
 }
 
 func loadData() []byte {
-
 	data, _ := ioutil.ReadFile("./mockdata.json")
 	return data
 }
