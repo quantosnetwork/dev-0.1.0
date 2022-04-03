@@ -12,7 +12,7 @@ import (
 )
 
 type MockData struct {
-	data string
+	Data string
 }
 
 func loadData() []byte {
@@ -61,4 +61,15 @@ func TestFilesystem_SyncToDisk(t *testing.T) {
 	data, _ := json.Marshal(dd)
 	util.WriteFile(a.io, "./test/mockdata.json", data, 0600)
 
+}
+
+func TestNewWriter(t *testing.T) {
+	mock := &MockData{
+		Data: "test",
+	}
+	w := NewWriter(WriteWithFromStruct(mock))
+	err := w.Write("test.test", "testing data test writer")
+	if err != nil {
+		t.Fatal(err)
+	}
 }

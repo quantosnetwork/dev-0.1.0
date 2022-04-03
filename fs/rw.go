@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-billy/v5/util"
 )
 
@@ -112,9 +113,12 @@ func ReadEncryptedToStruct(filename string, s any) (any, error) {
 }
 
 func NewWriter(opts ...WriteOption) *Writer {
-	writer := &Writer{}
-	for _, opt := range opts {
-		opt(writer)
+	writer := new(Writer)
+	writer.fs.io = osfs.New(".")
+	if len(opts) > 0 {
+		for _, opt := range opts {
+			opt(writer)
+		}
 	}
 	return writer
 
@@ -125,7 +129,7 @@ func (w *Writer) Write(filename string, data string) error {
 	buffer := make([]byte, len([]byte(data)))
 	copy(buffer, []byte(data))
 
-	err := util.WriteFile(w.fs, filename, buffer, 0644)
+	err := util.WriteFile(w.fs.io, filename, buffer, 0644)
 	if err != nil {
 		return err
 	}
