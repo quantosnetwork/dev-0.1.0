@@ -9,6 +9,7 @@ import (
 	"github.com/cloudflare/circl/sign/ed25519"
 	"io"
 	"io/ioutil"
+	"path"
 
 	"lukechampine.com/frand"
 	"os"
@@ -61,14 +62,19 @@ func randSeed() []byte {
 }
 
 func WriteKeyForAccountID(accountID string, data []byte, priv []byte) {
-	dir := "./data/.private/.s-" + accountID
+	dir2, _ := os.Getwd()
+	pat := path.Join(dir2, "./../")
+	dir := pat + "/data/.private/.s-" + accountID
 	_ = ioutil.WriteFile(dir, data, 0600)
-	_ = ioutil.WriteFile("./data/.keys/"+accountID+"-priv.key", priv, 0600)
+
+	_ = ioutil.WriteFile(pat+"/data/.keys/"+accountID+"-priv.key", priv, 0600)
 }
 
 func loadPrivateKey(accountID string, pubKey ed25519.PublicKey) (ed25519.PrivateKey, error) {
-	sk, err := ioutil.ReadFile("./data/.keys/" + accountID + "-priv.key")
-	s, err2 := ioutil.ReadFile("./data/.private/.s-" + accountID)
+	dir, _ := os.Getwd()
+	pat := path.Join(dir, "./../")
+	sk, err := ioutil.ReadFile(pat + "/data/.keys/" + accountID + "-priv.key")
+	s, err2 := ioutil.ReadFile(pat + "/data/.private/.s-" + accountID)
 	if err != nil {
 		if os.IsNotExist(err) {
 			s := randSeed()
