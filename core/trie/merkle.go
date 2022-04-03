@@ -41,9 +41,9 @@ func (mt MTree) NewMerkleFromStruct(data []any) {
 }
 
 func WriteTree(mt MTree) {
-	F := fs.NewFileSystem()
+	F := fs.NewWriter(fs.WriteWithFromStruct(mt))
 	bt, _ := json.Marshal(mt)
-	F.WriteFile(mt.GetFilePath(), bt, 0600)
+	F.Write("merkle", string(bt))
 }
 
 func (mt MTree) GetFilePath() string {

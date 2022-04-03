@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/holiman/uint256"
 	"github.com/quantosnetwork/dev-0.1.0/core/account"
-	"github.com/quantosnetwork/dev-0.1.0/fs"
 	"github.com/quantosnetwork/dev-0.1.0/hash"
 	"github.com/quantosnetwork/dev-0.1.0/keygen/p2p"
 	"github.com/quantosnetwork/dev-0.1.0/logger"
@@ -230,13 +229,11 @@ type genCtxFile struct {
 }
 
 func CheckIfGenesisFileExists(networkID byte) bool {
-	qfs := fs.NewFileSystem()
+	//qfs := fs.NewWriter(fs.WriteWithFromStruct(&GenesisBlock{}))
 
-	netstr := strconv.Itoa(int(networkID))
-	exists, err := qfs.Exists("./genesis-" + netstr + ".json")
-	if err != nil {
-		return false
-	}
+	//netstr := strconv.Itoa(int(networkID))
+	exists := false
+
 	if !exists {
 		return false
 	}
