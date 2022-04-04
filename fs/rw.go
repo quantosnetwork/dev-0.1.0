@@ -25,11 +25,6 @@ type WriteRequest struct {
 type ReadOption func(r *Reader)
 type WriteOption func(w *Writer)
 
-type FsUtil interface {
-	Read(opts ...ReadOption)
-	Write(opts ...WriteOption) error
-}
-
 func (rq *ReadRequest) DefaultReadOptions() *ReadRequest {
 	return &ReadRequest{
 		encrypted: false,
@@ -44,12 +39,14 @@ type Reader struct {
 	Filename string
 	Options  ReadRequest
 	buffer   []byte
+	IReader
 }
 
 type Writer struct {
 	fs       Filesystem
 	Filename string
 	Options  WriteRequest
+	IWriter
 }
 
 func (read *Reader) Read() error {
@@ -112,10 +109,10 @@ func ReadEncryptedToStruct(filename string, s any) (any, error) {
 
 }
 
-func NewWriter(opts ...WriteOption) *Writer {
+func NewWriter(opts ...WriteOption) IWriter {
 	writer := new(Writer)
 	writer.fs.io = osfs.New(".")
-	if len(opts) > 0 {
+	if len(opts) > 0 && opts != nil {
 		for _, opt := range opts {
 			opt(writer)
 		}
@@ -147,4 +144,33 @@ func WriteEncrypted(filename string, data string) error {
 		return err
 	}
 	return nil
+}
+
+func NewWriterWithoutOptions() *Writer {
+	writer := new(Writer)
+	writer.fs.io = osfs.New(".")
+	return writer
+}
+
+func NewReaderWithoutOptions() *Reader {
+	reader := new(Reader)
+	reader.fs.io = osfs.New(".")
+	return reader
+}
+
+type FileRW interface {
+	NewWriterWithoutOptions() *Writer
+	NewReaderWithoutOptions() *Reader
+	NewWriter(opts ...WriteOption) *Writer
+	NewReader(opts ...ReadOption) *Reader
+}
+
+type IWriter interface {
+	Write(filename string, data string) error
+	Encrypt(data string) (string, error)
+}
+
+type IReader interface {
+	Read() error
+	Decrypt(data string) (string, error)
 }

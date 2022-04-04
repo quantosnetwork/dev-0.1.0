@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/mr-tron/base58"
 	"github.com/quantosnetwork/dev-0.1.0/fs"
 	"github.com/spf13/afero"
@@ -30,7 +31,7 @@ type InMemoryPath struct {
 }
 
 func (p Path) Exists(realPath string) bool {
-	_ = fs.NewFileSystem()
+	//_ = fs.NewFileSystem()
 
 	//exists, _ := f.Exists(realPath)
 	return true
@@ -53,10 +54,15 @@ func (p Path) Get(id string) (*Path, error) {
 }
 
 func (p *InMemoryPath) Exists(realPath string) bool {
-	f := fs.NewFileSystem()
-	f.GetMemFs()
-	exists, _ := f.Exists(realPath)
-	return exists
+	f := fs.NewFS(osfs.New("."))
+	_, err := f.Open(realPath)
+	if err != nil {
+		if err == os.ErrNotExist {
+			return true
+		}
+	}
+
+	return false
 }
 
 func generatePathID(b []byte) string {

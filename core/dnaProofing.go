@@ -7,3 +7,8 @@ import (
 type DNAProofing interface {
 	GetOperator() *pod.DnaOperator
 }
+
+func BuildProof() {
+	op := pod.NewOperator()
+
+}

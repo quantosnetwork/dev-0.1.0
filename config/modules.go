@@ -1,11 +1,7 @@
 package config
 
 import (
-	"encoding/json"
-	"errors"
 	"github.com/quantosnetwork/dev-0.1.0/core/module"
-	"github.com/quantosnetwork/dev-0.1.0/fs"
-	"path/filepath"
 )
 
 type ModulesConfig struct {
@@ -17,6 +13,7 @@ type modulesConfigFile struct {
 	SystemRequired map[string]module.Module
 }
 
+/*
 func ReadModulesConfig(fUtils fs.FileUtils, mt string, path string) (*ModulesConfig, error) {
 	mc := new(ModulesConfig)
 	num, files, err := fUtils.GetFilesFromDir(filepath.Dir(path + "/" + mt))
@@ -49,4 +46,4 @@ func ReadModulesConfig(fUtils fs.FileUtils, mt string, path string) (*ModulesCon
 	}
 	return nil, errors.New("no config files exists")
 
-}
+}*/
